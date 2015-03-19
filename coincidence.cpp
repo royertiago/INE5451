@@ -74,7 +74,7 @@ int main( int argc, char ** argv ) {
     );
 
     int c;
-    int i = 0;
+    int i = -1;
     while( (c = getchar()) != EOF )
         if( isalpha(c) )
             coincidence[i = (i+1) % size][tolower(c) - 'a']++;
