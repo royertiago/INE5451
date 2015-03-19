@@ -41,13 +41,19 @@ void print_coincidence( int index, const std::vector<unsigned>& vec ) {
     printf( "[%i] = %.3lf\n", index, over / double(sum * (sum - 1)) );
 
     if( file_name != nullptr ) {
+        char greatest_char = 'A';
+        double greatest_double = 0.0;
         for( int i = 0; i < 26; i++ ) {
             double total = 0;
             for( int j = 0; j < 26; j++ )
                 total += probabilities[(j-i+26)%26] * vec[j] / sum;
             printf( "%c:%.3lf ", 'A' + i, total );
+            if( total > greatest_double ) {
+                greatest_double = total;
+                greatest_char = 'A' + i;
+            }
         }
-        printf( "\n" );
+        printf( " - Greatest value: %c\n", greatest_char );
     }
 }
 
