@@ -1,5 +1,5 @@
-File naming conventions
-=======================
+Makefile naming conventions
+===========================
 
 `file.cpp`: Some file that contains source code of implementations.
 If this file has a `main` function,
@@ -32,3 +32,12 @@ The makefile generates it if `file.cpp` contains a `main` function.
 The "shall"s of this section are not mere pedantry;
 the makefile assumes these rules to be true
 in order to function properly.
+
+
+Other file types
+----------------
+
+`language.freq`: A newline-separated list of floating point values.
+The i-th line corresponds to the frequency of appearance
+of the i-th letter in the respectitve language.
+This file is used by coincidence.cpp.
