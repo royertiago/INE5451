@@ -46,7 +46,7 @@ $(NOMAINDEP): %.dep.mk: %.cpp
 # The second command of this recipe updates this dependencies.
 $(MAINDEP): %.dep.mk: %.cpp
 	$(CXX) $(CXXFLAGS) $*.cpp -MM -MP -MF $*.dep.mk -MT '$*.o $*.dep.mk'
-	sed 's/^\([^:]*\).h:$$/&\n$*: \1.o/' -i $*.dep.mk
+	sed 's|^\([^:]*\).h:$$|&\n$*: \1.o|' -i $*.dep.mk
 
 .PHONY: mostlyclean clean
 mostlyclean:
