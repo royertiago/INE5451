@@ -9,6 +9,8 @@
  *  - treats the german eszett (ß) as two 's',
  *    each returned in one call to letter_scanner::next;
  *  - simply discards any other character (e.g. punctuation and digits.)
+ *
+ *  Warning: using this class may change the global locale.
  */
 
 #include <iosfwd>
