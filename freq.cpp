@@ -3,7 +3,7 @@
  *
  * Given a utf8-encoded file in stdin,
  * this program will analyze the frequency of appearance
- * of every letter, pair of letters, trio, and quadruples.
+ * of every letter and pair of letters.
  * It will print to stdout a list of pairs 'sequence appearance_count',
  * ordered by size and then lexicographically.
  *
@@ -12,40 +12,35 @@
  */
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <map>
 #include "utf8/letter_scanner.h"
 
-struct sized_smaller {
-    bool operator()( const std::string & lhs, const std::string & rhs ) const {
-        if( lhs.size() != rhs.size() )
-            return lhs.size() < rhs.size();
-
-        return lhs < rhs;
-    }
-};
-
 int main() {
-    std::map< std::string, unsigned, sized_smaller > freq;
+    long long unsigned singles[26];
+    long long unsigned doubles[26][26];
+    for( int i = 0; i < 26; i++ )
+        singles[i] = 0;
+    for( int i = 0; i < 26; i++ )
+        for( int j = 0; i < 26; i++ )
+            doubles[i][j] = 0;
+
     letter_scanner scanner( std::cin );
-    char a = -1, b = -1, c = -1, d = -1;
-    while( (d = scanner.next()) != -1 ) {
-        char dd[2] = {d};
-        char cc[3] = {c, d};
-        char bb[4] = {b, c, d};
-        char aa[5] = {a, b, c, d};
-        freq[std::string(dd)]++;
-        if( c != -1 )
-            freq[std::string(cc)]++;
-        if( b != -1 )
-            freq[std::string(bb)]++;
+
+    char a = -1, b = -1;
+    while( (b = scanner.next()) != -1 ) {
+
+        singles[b - 'a']++;
         if( a != -1 )
-            freq[std::string(aa)]++;
+            doubles[a - 'a'][b - 'a']++;
         a = b;
-        b = c;
-        c = d;
     }
-    for( auto pair : freq )
-        std::cout << pair.first << ' ' << pair.second << '\n';
+    for( int i = 0; i < 26; i++ )
+        std::cout << (char) ('a' + i) << ' ' << singles[i] << '\n';
+    for( int i = 0; i < 26; i++ )
+        for( int j = 0; i < 26; i++ )
+            std::cout << (char) ('a' + i) << (char)('a' + j)
+                << ' ' << doubles[i][j] << '\n';
 
     return 0;
 }
