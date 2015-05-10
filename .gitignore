@@ -2,7 +2,8 @@
 *.dep.mk
 *.txt
 .*.swp
-freq
 affine
 coincidence
+freq
+merge_freq
 vigenere
