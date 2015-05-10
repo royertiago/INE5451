@@ -7,7 +7,7 @@ $(CXX) -c $< -o $@ $(ALL_CXXFLAGS)
 endef
 
 define link_main
-$(CXX) -o $@ $^ $(ALL_CXXFLAGS) $(LDFLAGS)
+$(CXX) -o $@ $^ $(ALL_CXXFLAGS) $(ALL_LDFLAGS)
 endef
 
 define generate_dependency
@@ -19,6 +19,7 @@ endef
 # that include several files.
 CXXFLAGS ?= -g
 ALL_CXXFLAGS := $(CXXFLAGS) -std=c++1y -iquote./ -isystem Catch/single_include
+ALL_LDFLAGS := $(LDFLAGS) -lboost_locale
 
 # Directories whose makefiles need to be included
 submakefiles := $(wildcard */makefile.mk)
