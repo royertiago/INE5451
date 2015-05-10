@@ -1,60 +1,51 @@
 /* freq.cpp
  * Frequency analysis program
+ *
+ * Given a utf8-encoded file in stdin,
+ * this program will analyze the frequency of appearance
+ * of every letter, pair of letters, trio, and quadruples.
+ * It will print to stdout a list of pairs 'sequence appearance_count',
+ * ordered by size and then lexicographically.
+ *
+ * This program discard accents and put everything to lower-case before counting,
+ * ignores non-letters, and unfolds characters (e.g. eszett (ß) becomes "ss").
  */
 #include <iostream>
 #include <string>
 #include <map>
-#include <vector>
-#include <utility>
-#include <algorithm>
+#include "utf8/letter_scanner.h"
 
-void pretty_print( std::map< std::string, unsigned > const & map ) {
-    std::vector< std::pair<unsigned, std::string> > count;
-    for( auto p: map )
-        count.push_back( std::make_pair(p.second, p.first) );
+struct sized_smaller {
+    bool operator()( const std::string & lhs, const std::string & rhs ) const {
+        if( lhs.size() != rhs.size() )
+            return lhs.size() < rhs.size();
 
-    std::sort( count.begin(), count.end(), [](const auto& p, const auto& q){
-            return p.first > q.first || p.first == q.first && p.second < q.second;
-        } );
-    for( auto p: count )
-        if( p.first > 1 )
-            std::cout << p.second << ": " << p.first << std::endl;
-}
+        return lhs < rhs;
+    }
+};
 
 int main() {
-    std::map< std::string, unsigned > letters;
-    std::map< std::string, unsigned > digraphs;
-    std::map< std::string, unsigned > trigraphs;
-    std::map< std::string, unsigned > quadrigraphs;
+    std::map< std::string, unsigned, sized_smaller > freq;
+    letter_scanner scanner( std::cin );
     char a = -1, b = -1, c = -1, d = -1;
-    while( std::cin.get( d ) ) {
+    while( (d = scanner.next()) != -1 ) {
         char dd[2] = {d};
         char cc[3] = {c, d};
         char bb[4] = {b, c, d};
         char aa[5] = {a, b, c, d};
-        letters[std::string(dd)]++;
+        freq[std::string(dd)]++;
         if( c != -1 )
-            digraphs[std::string(cc)]++;
+            freq[std::string(cc)]++;
         if( b != -1 )
-            trigraphs[std::string(bb)]++;
+            freq[std::string(bb)]++;
         if( a != -1 )
-            quadrigraphs[std::string(aa)]++;
+            freq[std::string(aa)]++;
         a = b;
         b = c;
         c = d;
     }
-
-    std::cout << "Frequency analysis for letters:" << std::endl;
-    pretty_print( letters );
-    std::cout << std::endl;
-    std::cout << "Frequency analysis for digraphs:" << std::endl;
-    pretty_print( digraphs );
-    std::cout << std::endl;
-    std::cout << "Frequency analysis for trigraphs:" << std::endl;
-    pretty_print( trigraphs );
-    std::cout << std::endl;
-    std::cout << "Frequency analysis for quadrigraphs:" << std::endl;
-    pretty_print( quadrigraphs );
+    for( auto pair : freq )
+        std::cout << pair.first << ' ' << pair.second << '\n';
 
     return 0;
 }
