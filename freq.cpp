@@ -22,7 +22,7 @@ int main() {
     for( int i = 0; i < 26; i++ )
         singles[i] = 0;
     for( int i = 0; i < 26; i++ )
-        for( int j = 0; i < 26; i++ )
+        for( int j = 0; j < 26; j++ )
             doubles[i][j] = 0;
 
     letter_scanner scanner( std::cin );
@@ -36,11 +36,13 @@ int main() {
         a = b;
     }
     for( int i = 0; i < 26; i++ )
-        std::cout << (char) ('a' + i) << ' ' << singles[i] << '\n';
+        if( singles[i] > 0 )
+            std::cout << (char) ('a' + i) << ' ' << singles[i] << '\n';
     for( int i = 0; i < 26; i++ )
-        for( int j = 0; i < 26; i++ )
-            std::cout << (char) ('a' + i) << (char)('a' + j)
-                << ' ' << doubles[i][j] << '\n';
+        for( int j = 0; j < 26; j++ )
+            if( doubles[i][j] > 0 )
+                std::cout << (char) ('a' + i) << (char)('a' + j)
+                    << ' ' << doubles[i][j] << '\n';
 
     return 0;
 }
