@@ -4,6 +4,7 @@
 .*.swp
 affine
 coincidence
+des3
 freq
 merge_freq
 vigenere
