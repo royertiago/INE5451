@@ -18,7 +18,19 @@ namespace des {
 
     /* 48-bit subkey.
      */
-    typedef uint_least64_t subkey;
+    typedef std::uint_least64_t subkey;
+
+    /* Either the left or the right half of the input data.
+     */
+    typedef std::uint_least32_t half_data;
+
+    /* A half_data that has passed through the expansion function,
+     * inside the function 'f'.
+     *
+     * We define it as the same type as subkey to reinforce that
+     * the exclusive-or operation can be done between these data types.
+     */
+    typedef subkey expanded_data;
 }
 
 
