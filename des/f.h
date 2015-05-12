@@ -19,6 +19,15 @@ namespace des {
      */
     half_data f( half_data, subkey );
 
+    /* Runs the permutation function P,
+     * used after the output of the S-boxes are concatenated.
+     */
+    half_data p( half_data );
+
+    /* Inverts the permutation P.
+     */
+    half_data p_inv( half_data );
+
 } // namespace des
 
 #endif // DES_F_H
