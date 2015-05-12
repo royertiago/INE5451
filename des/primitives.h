@@ -16,6 +16,11 @@ namespace des {
     /* s_box[i][input]
      * Returns the value of applying the (i+1)-th S-box
      * to the chosen input.
+     *
+     * Note that the "official" algorithm uses a somewhat complex indexing scheme
+     * (the first and last bits are concatenated to form the row index,
+     * then the middle bits are used as the column index).
+     * The S-boxes here already do this for you.
      */
     extern const unsigned char s_box[8][64];
 
