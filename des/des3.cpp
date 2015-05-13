@@ -21,4 +21,35 @@ namespace des {
         r3 = l2 ^ des::f(r2, subkeys[2]);
         return  (long long unsigned) l3 << 32 | r3;
     }
+
+    long long unsigned brute_force_8(
+        long long unsigned plain,
+        long long unsigned ciphered,
+        long long unsigned partial_key,
+        long long unsigned mask
+    ) {
+        for( int i = 0; i < (1 << __builtin_popcountll(mask)); i++ ) {
+            /* Bit subset expansion.
+             * The code here (except the last three bits)
+             * are here to map the '1' bits in the variable i
+             * to the avaliable bits in the mask.
+             */
+            unsigned long long mask_tmp = mask;
+            int j = i;
+            unsigned long long subset = 0;
+            while( j != 0 ) {
+                if( j & 0b1 == 1 )
+                    subset |= mask_tmp & -mask_tmp;
+                j >>= 1;
+                mask_tmp -= mask_tmp & -mask_tmp;
+            }
+
+            unsigned long long key = subset | partial_key;
+            if( des3_key(plain, key) == ciphered )
+                return key;
+        }
+        return -1;
+    }
+
+
 } // namespace des

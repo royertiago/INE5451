@@ -17,6 +17,24 @@ namespace des {
      */
     long long unsigned des3_key( long long unsigned text, long long unsigned key );
 
+    /* Brute-forces the last bits of a DES-3 key.
+     *
+     * plain and ciphered are the desired input and output.
+     * partial_key is a 56-bit DES-3 key, with all the known bits.
+     * Every unknown bit is zero.
+     * maks tells which of the bits in the partial_key are known.
+     * If a bit is zero in the mask, then it is known, and vice-versa.
+     *
+     * Retruns the 56-bit key that solves the problem,
+     * or -1 if no such key was found.
+     */
+    long long unsigned brute_force_8(
+        long long unsigned plain,
+        long long unsigned ciphered,
+        long long unsigned partial_key,
+        long long unsigned mask
+    );
+
 } // namespace des
 
 
