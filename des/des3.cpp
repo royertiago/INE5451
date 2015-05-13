@@ -3,8 +3,12 @@
 #include "des/subkeys.h"
 
 namespace des {
-    long long unsigned des3( long long unsigned text, long long unsigned key ) {
-        auto subkeys = des::subkeys( des::extract_key(key) );
+    long long unsigned des3( long long unsigned text, long long unsigned input_key ) {
+        return des3_key( text, des::extract_key(input_key) );
+    }
+
+    long long unsigned des3_key( long long unsigned text, long long unsigned key ) {
+        auto subkeys = des::subkeys( key );
 
         des::half_data r0, l0, r1, l1, r2, l2, r3, l3;
         l0 = text >> 32;
