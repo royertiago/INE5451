@@ -1,10 +1,12 @@
 /* DES-3 chosen plaintext attack algorithm.
  */
 
-#include <iostream>
 #include <iomanip>
-#include "des/voting.h"
+#include <iostream>
+#include "des/des3.h"
 #include "des/f.h"
+#include "des/subkeys.h"
+#include "des/voting.h"
 
 #include <bitset>
 
@@ -44,6 +46,25 @@ int main() {
         }
     }
 
-    for( int i = 0; i < 8; i++ )
-        std::cout << "S-box " << i << ": " << (int) votes[i].vote() << '\n';
+    unsigned long long known_bits;
+    for( int i = 0; i < 8; i++ ) {
+        unsigned long long vote = votes[i].vote();
+        if( vote == -1ull ) {
+            std::cout << "Problem in the S-box " << i << '\n';
+            return 1;
+        }
+        known_bits = (known_bits << 6) | vote;
+    }
+
+    auto pair = des::reconstruct_key( known_bits, 2 );
+    unsigned long long key = des::brute_force_8(in1, out1, pair.first, pair.second);
+
+    if( key == -1llu ) {
+        std::cout << "Could not decipher the message;"
+            " maybe I need more (input,output) pairs.\n";
+        return 1;
+    }
+
+    std::cout << std::hex << des::restore_parity( key ) << '\n';
+    return 0;
 }
