@@ -37,6 +37,37 @@ namespace des {
         return bits.to_ullong();
     }
 
+    std::pair<input_key, input_key> reconstruct_key( subkey s, int index ) {
+        int shifts = 0;
+        /* We must count values <= index because the shifts
+         * happen before applying pc2 in the subkey algorithm.
+         */
+        for( int i = 0; i <= index; i++ )
+            shifts += shift_count[i];
+
+        std::bitset<56> CD; // left (C) and right (D) parts of the key
+        std::bitset<56> CDm( (1llu << 56) - 1 ); // CD of the mask
+        std::bitset<48> subkey(s);
+        for( int i = 0; i < 48; i++ ) {
+            CD[55-pc2[i]] = subkey[47-i];
+            CDm[55-pc2[i]] = 0;
+        }
+
+        std::bitset<28> C( CD.to_ullong() >> 28 );
+        std::bitset<28> Cm( CDm.to_ullong() >> 28 );
+        std::bitset<28> D( CD.to_ullong() );
+        std::bitset<28> Dm( CDm.to_ullong() );
+
+        C = (C >> shifts) | (C << (28 - shifts));
+        Cm = (Cm >> shifts) | (Cm << (28 - shifts));
+        D = (D >> shifts) | (D << (28 - shifts));
+        Dm = (Dm >> shifts) | (Dm << (28 - shifts));
+
+        input_key key = C.to_ullong() << 28 | D.to_ullong();
+        input_key mask = Cm.to_ullong() << 28 | Dm.to_ullong();
+        return std::make_pair(key, mask);
+    }
+
     std::vector<subkey> subkeys( input_key key ) {
         std::vector<subkey> subkeys;
 

@@ -35,4 +35,10 @@ TEST_CASE( "DES subkey generation", "[des]" ) {
     CHECK( subkeys[13] == 0b010111'110100'001110'110111'111100'101110'011100'111010 );
     CHECK( subkeys[14] == 0b101111'111001'000110'001101'001111'010011'111100'001010 );
     CHECK( subkeys[15] == 0b110010'110011'110110'001011'000011'100001'011111'110101 );
+
+    for( int i = 0; i < 16; i++ ) {
+        auto pair = des::reconstruct_key(subkeys[i], i);
+        CHECK( __builtin_popcountll(pair.second) == 8 );
+        CHECK( pair.first == (key & ~pair.second) );
+    }
 }
