@@ -10,6 +10,8 @@ TEST_CASE( "DES parity bit extraction", "[des]" ) {
         0b00010011'00110100'01010111'01111001'10011011'10111100'11011111'11110001;
     CHECK( des::extract_key(key) ==
         0b1111000'0110011'0010101'0101111'0101010'1011001'1001111'0001111 );
+
+    CHECK( des::restore_parity(des::extract_key(key)) == key );
 }
 
 TEST_CASE( "DES subkey generation", "[des]" ) {

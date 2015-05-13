@@ -19,6 +19,24 @@ namespace des {
         return key.to_ullong();
     }
 
+    long long unsigned restore_parity( input_key key ) {
+        std::bitset<64> bits;
+        std::bitset<56> bkey(key);
+        for( int i = 0; i < 56; i++ )
+            bits[63-pc1[i]] = bkey[55-i];
+
+        /* The remaining bits exists to guarantee that the parity
+         * of each 8-bit block is odd.
+         */
+        for( int i = 0; i < 8; i++ ) {
+            bool bit = 1;
+            for( int j = 1; j < 8; j++ )
+                bit ^= bits[8*i + j];
+            bits[8*i] = bit;
+        }
+        return bits.to_ullong();
+    }
+
     std::vector<subkey> subkeys( input_key key ) {
         std::vector<subkey> subkeys;
 
