@@ -4,7 +4,7 @@
 
 namespace des {
     long long unsigned des3( long long unsigned text, long long unsigned key ) {
-        auto subkeys = des::subkeys( key );
+        auto subkeys = des::subkeys( des::extract_key(key) );
 
         des::half_data r0, l0, r1, l1, r2, l2, r3, l3;
         l0 = text >> 32;

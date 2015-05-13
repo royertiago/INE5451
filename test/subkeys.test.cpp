@@ -5,9 +5,16 @@
 #include "des/subkeys.h"
 #include <catch.hpp>
 
+TEST_CASE( "DES parity bit extraction", "[des]" ) {
+    unsigned long long key =
+        0b00010011'00110100'01010111'01111001'10011011'10111100'11011111'11110001;
+    CHECK( des::extract_key(key) ==
+        0b1111000'0110011'0010101'0101111'0101010'1011001'1001111'0001111 );
+}
+
 TEST_CASE( "DES subkey generation", "[des]" ) {
     des::input_key key = 
-        0b00010011'00110100'01010111'01111001'10011011'10111100'11011111'11110001;
+        0b1111000'0110011'0010101'0101111'0101010'1011001'1001111'0001111;
 
     auto subkeys = des::subkeys( key );
     CHECK(  subkeys[0] == 0b000110'110000'001011'101111'111111'000111'000001'110010 );

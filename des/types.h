@@ -11,8 +11,8 @@
 
 namespace des {
     /* input_key
-     * Crude 64-bit key, directly from the input.
-     * This key includes the 8 parity bits.
+     * 56-bit key, generated after passing through the initial permutation.
+     * This key does not have the extra 8 parity bits.
      */
     typedef std::uint_least64_t input_key;
 

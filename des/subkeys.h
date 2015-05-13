@@ -8,6 +8,10 @@
 #include "des/types.h"
 
 namespace des {
+    /* Extract the 56 useful bits from the 64 input bits.
+     */
+    input_key extract_key( unsigned long long input_64_bits );
+
     /* Return a list of subkeys for the given key.
      */
     std::vector<subkey> subkeys( input_key );

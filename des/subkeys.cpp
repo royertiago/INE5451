@@ -4,11 +4,9 @@
 #include "subkeys.h"
 
 namespace des {
-    std::vector<subkey> subkeys( input_key key ) {
-        std::vector<subkey> subkeys;
-
-        std::bitset<64> bkey(key); // key in a bitset
-        std::bitset<56> pkey; // Key after passing through PC1
+    input_key extract_key( unsigned long long input ) {
+        std::bitset<64> bits(input); // key in a bitset
+        std::bitset<56> key; // Key after passing through PC1
     
         /* std::bitset works in "little endian":
          * pkey[0] is the rightmost bit of the bitset,
@@ -16,10 +14,16 @@ namespace des {
          * So, we must invert the index in every access to bitsets.
          */
         for( int i = 0; i < 56; i++ )
-            pkey[55-i] = bkey[63-pc1[i]];
+            key[55-i] = bits[63-pc1[i]];
 
-        std::bitset<28> C(pkey.to_ullong() >> 28); // higher bits of the key
-        std::bitset<28> D(pkey.to_ullong()); // lower bits of the key
+        return key.to_ullong();
+    }
+
+    std::vector<subkey> subkeys( input_key key ) {
+        std::vector<subkey> subkeys;
+
+        std::bitset<28> C(key >> 28); // higher bits of the key
+        std::bitset<28> D(key); // lower bits of the key
 
         for( int i = 0; i < 16; i++ ) {
             // Cyclical permutation of the key halves
