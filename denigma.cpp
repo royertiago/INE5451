@@ -76,7 +76,7 @@ int main() {
     for( int r3 = 0; r3 < 5; r3++ ) {
         if( r1 == r2 || r1 == r3 || r2 == r3 )
             continue;
-        std::cout << "Trying rotors " << r1 << "-" << r2 << "-" << r3 << "\n";
+        std::cout << "Trying rotors " << r1+1 << "-" << r2+1 << "-" << r3+1 << "\n";
 
         E.set_rotors(rotors[r1], rotors[r2], rotors[r3]);
 
