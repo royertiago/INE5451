@@ -40,6 +40,17 @@ bool is_vowel( enigma::index i ) {
            i == 'O' - 'A' ||
            i == 'U' - 'A';
 }
+/* Six most common letters in english; account for 51.147% of all letters,
+ * according to the Wikipedia.
+ */
+bool is_common( enigma::index i ) {
+    return i == 'A' - 'A' ||
+           i == 'E' - 'A' ||
+           i == 'I' - 'A' ||
+           i == 'N' - 'A' ||
+           i == 'O' - 'A' ||
+           i == 'T' - 'A';
+}
 
 double index_of_coincidence( const std::vector<enigma::index> & text ) {
     int count[26] = {0};
@@ -85,7 +96,34 @@ int main() {
         for( int d3 = 0; d3 <= 25; d3++ ) {
             E.set_key( d1, d2, d3 );
 
-            for( int i = 0; i < text.size(); i++ )
+            /* Two aggressive optimizations:
+             * First, if there is no vowels in the first three letters,
+             * discard that key.
+             */
+            int vowel_count = 0;
+            int common_count = 0;
+            for( int i = 0; i < 3; i++ ) {
+                plain[i] = E.cipher(text[i]);
+                vowel_count += is_vowel(plain[i]);
+                common_count += is_common(plain[i]);
+            }
+            if( vowel_count == 0 )
+                continue;
+
+            /* Next, if there is less than 8 "common letters" among the 20 first,
+             * discard that key.
+             */
+            for( int i = 3; i < 20; i++ ) {
+                plain[i] = E.cipher(text[i]);
+                common_count += is_common(plain[i]);
+            }
+            if( common_count < 8 )
+                continue;
+
+            /* Otherwise, continue processing,
+             * and discard keys only due to poor index of coincidence.
+             */
+            for( int i = 20; i < text.size(); i++ )
                 plain[i] = E.cipher(text[i]);
 
             double index = index_of_coincidence(plain);
