@@ -1,0 +1,389 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\newtheorem{theorem}{Teorema}
+
+\title{
+    INE5451 - Tópicos Especiais em Algoritmos I \\
+    Introdução à Criptoanálise \\
+    Relatorio I
+}
+\author{
+    Lucas Zarbato - 11100890\\
+    Tiago Royer - 12100776
+}
+
+\date{14 de Maio de 2015}
+
+\newcommand{\sw}{\mathit{sw}}
+\newcommand{\IP}{\mathit{IP}}
+
+\begin{document}
+
+\maketitle
+
+\section{Introdução}
+
+O trabalho a ser entregue consistia de quatro questões
+relacionadas ao conteúdo aprendido em aula.
+Duas destas questões exigiam implementação
+de um algoritmo para quebrar chaves,
+e uma pedia que fizéssemos análise de frequência
+de uma grande quantidade de textos escritos em alemão.
+
+Por questão de eficiência, fizemos todos os programas em C++.
+Nosso código está disponível em \texttt{https://github.com/royertiago/INE5451}.
+
+\section{Questão 1 --- Análise de Frequencia do Alemão}
+
+Montamos um pequeno programa para contar todas as ocorrências de caracteres
+e de pares de caracteres em textos escritos em alemão.
+
+A fonte dos textos foi a Wikipedia em alemão.
+A Wikipedia disponibiliza apenas os dados em XML;
+para simplificar o parsing, pegamos os dados já em texto puro
+deste site: \texttt{http://kopiwiki.dsd.sztaki.hu/}.
+Utilizamos a biblioteca Boost.Locale para lidar com o ß (eszett)
+e com acentuação.
+
+Foram analisadas, no total, $5,8$ bilhões de letras.
+As frequências, em ordem desendente, estão disponíveis na tabela \ref{letras}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{r l}
+        Letra & Frequência \\\hline
+            e & 0,15123 \\
+            n & 0,09098 \\
+            i & 0,08026 \\
+            r & 0,07657 \\
+            a & 0,06792 \\
+            s & 0,06757 \\
+            t & 0,06202 \\
+            d & 0,04642 \\
+            u & 0,04333 \\
+            h & 0,04083 \\
+            l & 0,04074 \\
+            o & 0,03540 \\
+            c & 0,02967 \\
+            g & 0,02867 \\
+            m & 0,02707 \\
+            b & 0,02201 \\
+            f & 0,01693 \\
+            k & 0,01642 \\
+            w & 0,01417 \\
+            p & 0,01222 \\
+            z & 0,01120 \\
+            v & 0,00996 \\
+            j & 0,00364 \\
+            y & 0,00291 \\
+            x & 0,00120 \\
+            q & 0,00052 \\
+    \end{tabular}
+    \caption{Frequência de aparição das letras no alemão.}
+    \label{letras}
+\end{table}
+
+Tabelamos também todos pares de letras.
+Nós consideramos que o final de uma palavra e o início de outra formam um par.
+Como alguns pares quase não aparecem
+(jx, qy e qx, por exemplo, aparecem poucos milhares de vezes),
+optamos por mostrar apenas os 20 maiores,
+na tabela \ref{pares}.
+Eles respondem por cerca de 32\% de todos os pares.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{r l}
+        Par & Frequência \\\hline
+        er & 0,03515 \\
+        en & 0,02960 \\
+        ch & 0,02285 \\
+        de & 0,02015 \\
+        ei & 0,01787 \\
+        te & 0,01769 \\
+        in & 0,01683 \\
+        nd & 0,01675 \\
+        ie & 0,01392 \\
+        st & 0,01256 \\
+        ge & 0,01209 \\
+        un & 0,01208 \\
+        es & 0,01207 \\
+        an & 0,01180 \\
+        re & 0,01080 \\
+        ne & 0,01028 \\
+        he & 0,01009 \\
+        be & 0,00974 \\
+        is & 0,00971 \\
+        sc & 0,00900 \\
+        se & 0,00865 \\
+    \end{tabular}
+    \caption{20 pares com maior taxa de aparição no alemão.}
+    \label{pares}
+\end{table}
+
+\section{Questão 2 --- Decifragem do DES}
+
+\begin{theorem}
+    Para decifrar o DES, basta fornecer as subchaves em ordem reversa.
+\end{theorem}
+
+\begin{proof}
+
+    (Durante a demonstração, $x$ e $y$
+    representarão números de 32 bits.)
+
+    Defina a função $\sw$ como a função de swap:
+    $\sw(xy) = yx$.
+    Defina a função $D(xy, K)$ como o resultado de uma rodada do DES,
+    com $x$ como palavra da esquerda, $y$ a palavra da direita,
+    e $K$ a subchave.
+
+    Primeiro, mostraremos que $D(\sw(D(xy, K)), K) = \sw(xy)$.
+
+    Chame de $x^*y^*$ a saída de $D(xy, K)$.
+    A partir da descrição em alto nível do DES,
+    sabemos que $x^* = y$
+    e que $y^* = x \oplus f(y, K)$.
+    Isso é só o que precisamos saber a respeito de uma rodada do DES.
+
+    Temos
+    \begin{equation*}
+        \sw(D(xy, K)) = \sw(x^*y^*) = y^*x^*.
+    \end{equation*}
+    Aplicando novamente uma rodada DES,
+    obtemos na saída o par $x'y'$,
+    em que $x' = x^*$
+    e
+    \begin{equation*}
+        y' = y^* \oplus f(x^*, K).
+    \end{equation*}
+
+    Agora, expandindo os valores de $x^*$, $x$, $y^*$ e $y$,
+    temos $x' = x^* = y$,
+    e
+    \begin{align*}
+        y'  &= y^* \oplus f(x^*, K) \\
+            &= (x \oplus f(y, K)) \oplus f(y, K) \\
+            &= x.
+    \end{align*}
+    Portanto,
+    \begin{equation}
+        D(\sw(D(xy, K)), K) = x'y' = yx = \sw(xy).
+        \label{dsw}
+    \end{equation}
+
+    De posse desta equação,
+    não precisamos mais inspecionar as metades individuais
+    e podemos trabalhar com blocos de 64 bits.
+
+    Chamaremos de $t$ o texto em claro, e $T_0 = \IP(t)$
+    ($\IP$ é a permutação inicial).
+
+    Dispomos de uma lista de chaves $K_1, \dots, K_{16}$.
+    Chamaremos de $T_i$ a saída da $i$-ésima rodada do DES;
+    temos $T_i = D(T_{i-1}, K_i)$ para $0 < i \leq 16$.
+
+    Por fim, realizamos um swap, e aplicamos $\IP^{-1}$.
+    A saída do algoritmo é $\IP^{-1}(\sw(T_{16}))$.
+
+    Agora, passaremos esta saída novamente pelo algoritmo,
+    mas fornecendo as subchaves na ordem reversa.
+
+    Chamaremos de $C_i$ a saída da $i$-ésima rodada
+    desta passagem pelo algoritmo.
+    $C_0$ é antes de qualquer rodada;
+    como apenas aplicamos $\IP$,
+    temos $C_0 = \sw(T_{16})$.
+
+    Provaremos por indução que $C_i = \sw(T_{16-i})$.
+    O caso base já está feito.
+
+    Assuma para $C_{i-1}$.
+    Para calcular $C_i$,
+    usamos a mesma fórmula.
+    Observe que usaremos a chave $K_{16}$ para cifrar $C_1$,
+    $K_{15}$ para cifrac $C_2$;
+    em geral, $K_{16 - i + 1}$ para cifrar $C_i$.
+    \begin{align*}
+        C_i &= D(C_{i-1}, K_{16-i+1}) \\
+            &= D(\sw(T_{16-i+1}), K_{16-i+1})   & \text{pelo passo indutivo} \\
+            &= D(\sw(D(T_{16-i}, K_{16-i+1})), K_{16-i+1}) &
+                \text{pela definição de $T_{16-i+1}$} \\
+            &= \sw(T_{16-i}), &\text{pela equação \ref{dsw}}.
+    \end{align*}
+    Isso conclui a demonstração por indução.
+
+    Portanto, $C_{16}$, a última saída após todas as rodadas,
+    é $\sw(T_0)$.
+    Após o swap, recuperamos $T_0$.
+    Mas $T_0 = \IP(t)$!
+    Portanto, ao aplicar $\IP^{-1}$,
+    recuperamos o texto original, $t$,
+    como a saída do algoritmo.
+\end{proof}
+
+\section{Questão 3 --- Máquina Enigma}
+
+Esta questão fornecia um texto cifrado utilizando a máquina Enigma,
+e a informação de que o ajuste dos anéis era \texttt{AAA}
+(o que é equivalente a não haver os anéis)
+e que a plugboard não continha nenhum cabo.
+
+Entretanto, não sabemos quais os rotores utilizados
+nem seus posicionamentos.
+O objetivo do exercício era que implementássemos uma Enigma
+e descobrissemos a chave, por força bruta.
+
+Existem $26*26*26$ possíveis posições dos rotores
+e $5*4*3$ diferentes ordens de rotores,
+resultando em pouco mais de um milhão de chaves diferentes.
+Claramente não podemos inspecioná-las manualmente.
+Nossa abordagem foi de utilizar o índice de coincidência
+após cada tentativa de decifragem.
+
+Em essência, o algoritmo é:
+itere sobre cada escolha de rotores,
+e itere sobre cada posição dos rotores;
+passe a mensagem na Enigma e calcule o índice de coincidência;
+imprima a chave caso o índice fique acima de um certo limiar.
+
+Experimentalmente, nós impomos o ``limiar de aceitação'' em $0.05$.
+Como o texto é grande (cerca de 400 caracteres),
+os índices de coincidência para cada candidato a texto claro
+raramente passavam de $0.04$.
+Os índices de coincidência para linguagens naturais
+ficam em torno de $0.07$,
+então escolher o limiar em $0.05$ pareceu um bom compromisso entre
+não poder descartar a chave real
+nem ``deixar passar muito lixo'' --- isto é, falsos positivos.
+
+Este valor funcionou corretamente.
+De todo o espaço de chaves possível,
+apenas uma apresentava índice de coincidência superior a $0.05$:
+rotores \texttt{III-IV-V}, posições \texttt{UFS}.
+O texto em claro foi extraído de um texto de Edsger Dijkstra.
+
+\subsection{Otimizações}
+
+Como este era o problema que mais exigia tempo de CPU,
+dedicamos um tempo adicional otimizando sua implementação.
+A fim de minimizar a quantidade de multiplicações e divisões,
+nós não utilizamos diretamente a expressão matemática
+que gera a permutação realizada pela Enigma.
+Nós nos baseamos em sua descrição física para fazer a implementação.
+
+Usamos a ideia de girar a entrada,
+e não o rotor,
+para simular a passagem do sinal pelo rotor;
+pré-computamos as permutações inversas de cada rotor;
+e, dentro da máquina,
+sempre trabalhamos com valores no intervalo $[0, 25]$,
+portanto, a saída de uma permutação pode ser usada como índice
+para a próxima permutação.
+Mesmo a computação do índice de coincidência
+é realizada sobre valores em $[0, 25]$.
+
+Dessa forma, toda a Enigma é computada usando apenas somas,
+acesso a vetores, e a operação $\mod 26$.
+Além disso, os vetores indexam \texttt{signed char}s;
+são 7 vetores de 26 bytes no total
+(dois para cada rotor e mais um para o refletor).
+Mesmo com as informações adicionais
+(como posição atual e localização do entalhe),
+a Enigma inteira cabe em 256 bytes,
+tornando nossa implementação bastante amigável à cache do processador.
+
+Compilando com \texttt{gcc 4.9.2} com nível de otimização \texttt{O3},
+num processador Intel Core i5 2.3 GHz,
+em apenas 30 segundos,
+todas as 1 milhão de chaves são analisadas%
+\footnote{
+    Em teoria, bastaria analisar apenas até encontrar a chave certa.
+    Entretanto, para propósitos de benchmark,
+    fizemos o programa continuar testando chaves
+    mesmo após encontrar uma chave válida.
+
+    No nosso caso, cerca de metade das chaves tem de ser analisadas
+    antes de encontrar a ``verdadeira''.
+}.
+
+Nós aplicamos mais uma otimização após isso:
+remover aqueles $\mod 26$.
+Criamos uma função \texttt z que mapeia os inteiros
+para valores em $\mathbb{Z}_{26}$.
+Esta função só é chamada com somas ou subtrações
+de valores entre $0$ e $25$,
+portanto, seu argumento está sempre no intervalo $[-26, 2*26-1]$.
+Ou seja: ela pode ser substituida por uma tabela de lookup.
+Fazer isso triplicou a velocidade do programa;
+agora, todo o espaço de chaves é analisado em 10 segundos.
+
+E, por último, nós adicionamos duas heurísticas
+que permitem descartar a chave prematuramente.
+A primeira, mais conservadora,
+parte do princípio de que,
+no início das palavras,
+muito provavelmente deve aparecer alguma vogal%
+\footnote{
+    Uma rápida inspeção em \texttt{/usr/share/dict/words}
+    sugere que aproximadamente 3\% das palavras
+    começam com três não-vogais.
+}
+Nós analisamos as três primeiras letras do candidato a texto em claro.
+Caso não haja vogal alguma nestas letras,
+descartamos a chave imediatamente.
+
+Esta heurística dobrou a velocidade de processamento,
+o que é compatível com o fato de a probabilidade de não haver vogal
+em três letras escolhidas aleatoriamente ser
+\begin{equation}
+    \frac{21}{26} * \frac{21}{26} * \frac{21}{26} \approx 0.5
+\end{equation}
+
+A segunda heurística é mais questionável.
+Ela é baseada nas seis letras mais frequentes no inglês,
+E, T, A, O, I, N.
+Estas seis letras respondem por aproximadamente 51\%
+de todas as letras na lingua inglesa.
+Portanto, nas 20 letras iniciais,
+podemos esperar cerca de 10 letras pertencentes a este conjunto.
+Nós decidimos arbitrariamente descartar
+qualquer candidato cujas 20 primeiras letras apresentem
+menos de 8 letras neste conjunto.
+
+Esta heurística deu resultados melhores.
+Dos candidatos que passam no primeiro teste,
+empiricamente descobrimos que cerca de 80\% não passam no segundo,
+acelerando a computação em 5 vezes.
+
+Paramos de otimizar (e procurar heurísticas) por aqui.
+Neste momento, conseguimos quebrar o texto
+de qualquer um dos 10 grupos em pouco menos de 1 segundo.
+
+\section{Problema 4 - Criptoanálise do DES-3}
+
+O objetivo deste problema era meramente implementar
+o algoritmo de criptoanálise diferencial para o DES com três rodadas,
+ingorando a permutação e o swap final.
+
+Não há muito o que comentar deste problema,
+pois ele se resumia a implementar o algoritmo já pronto.
+
+Nossa chave (de 56 bits) ficou neste formato:
+
+\texttt{?01001000110?00010100?111?010?10110100?10?0010?000001010}
+
+Os oito bits restantes foram obtidos via força bruta.
+Nossa chave é \texttt{0x2331A25215E34038}.
+
+É interessante notar que,
+apesar de nos ter sido fornecidos cinco pares de textos,
+quaisquer quatro daqueles textos seriam suficientes;
+mas a alguns subconjuntos com três pares de textos
+não determina unicamente os bits correspondentes da chave.
+
+\end{document}
