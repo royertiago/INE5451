@@ -49,7 +49,7 @@ int main() {
     unsigned long long known_bits;
     for( int i = 0; i < 8; i++ ) {
         unsigned long long vote = votes[i].vote();
-        if( vote == -1ull ) {
+        if( vote == 64 ) {
             std::cout << "Problem in the S-box " << i << '\n';
             return 1;
         }
