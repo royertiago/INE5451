@@ -39,7 +39,7 @@ namespace enigma {
         /* Advances the rotor.
          */
         void step() {
-            pos = (pos + 1) % 26;
+            pos = z(pos + 1);
         }
 
         /* True if and only if the rotor is in 'notch' position.
@@ -66,9 +66,21 @@ namespace enigma {
 
         /* Utility function: Normalizes the output to Z_26,
          * the group of the integers modulo 26.
+         *
+         * The function only accepts integers in the range [-26, 2*26-1];
+         * the reason is that it uses a vector to avoid the modulo operation.
          */
-        static constexpr inline index z( index i ) {
-            return (i + 26) % 26;
+        static inline index z( index i ) {
+            static constexpr index helper[3*26] = {
+                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12,
+                13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+            };
+            static constexpr const index * z_vector = helper + 26;
+            return z_vector[i];
         }
     };
 
