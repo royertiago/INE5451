@@ -205,9 +205,9 @@ Eles respondem por cerca de 32\% de todos os pares.
     Assuma para $C_{i-1}$.
     Para calcular $C_i$,
     usamos a mesma fórmula.
-    Observe que usaremos a chave $K_{16}$ para cifrar $C_1$,
-    $K_{15}$ para cifrac $C_2$;
-    em geral, $K_{16 - i + 1}$ para cifrar $C_i$.
+    Observe que usaremos a chave $K_{16}$ para obter $C_1$,
+    $K_{15}$ para obter $C_2$;
+    em geral, $K_{16 - i + 1}$ para obter $C_i$.
     \begin{align*}
         C_i &= D(C_{i-1}, K_{16-i+1}) \\
             &= D(\sw(T_{16-i+1}), K_{16-i+1})   & \text{pelo passo indutivo} \\
