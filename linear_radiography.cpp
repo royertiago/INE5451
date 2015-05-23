@@ -11,9 +11,37 @@
  * and n == 2 ^ (input_bits).
  */
 #include <bitset>
+#include <iomanip>
 #include <iostream>
 #include <limits>
+#include <string>
 #include <vector>
+
+/* Print the radiography in tabular form.
+ */
+void pretty_print( std::vector< std::vector<long long> > vec ) {
+    /* digits is the number of digits that the entry with more digits has.
+     *
+     * For this specific algorithm, vec[0][0] is guaranteed
+     * to be the greatest possible value.
+     */
+    int digits = 1;
+    long long target = vec[0][0];
+    while( (target /= 10) > 0 )
+        digits++;
+
+    std::cout << std::string( digits + 2, ' ' );
+    for( int j = 0; j < vec[0].size(); j++ )
+        std::cout << std::setw(digits + 1) << j;
+    std::cout << '\n';
+
+    for( int i = 0; i < vec.size(); i++ ) {
+        std::cout << std::setw(digits + 1) << i << ' ';
+        for( int j = 0; j < vec[i].size(); j++ )
+            std::cout << std::setw(digits + 1) << vec[i][j];
+        std::cout << '\n';
+    }
+}
 
 int main() {
     int input_bits, output_bits;
@@ -49,16 +77,7 @@ int main() {
             __builtin_parityll(bitsets[input].to_ullong() & output_mask);
     }
 
-    for( unsigned long long input_mask = 0;
-        input_mask < (1llu << input_bits);
-        input_mask++
-    )
-    for( unsigned long long output_mask = 0;
-        output_mask < (1llu << output_bits);
-        output_mask++
-    )
-        std::cout << "[" << input_mask << "][" << output_mask << "] - "
-            << radiography[input_mask][output_mask] << '\n';
+    pretty_print( radiography );
 
     return 0;
 }
