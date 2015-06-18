@@ -4,6 +4,8 @@
 /* Struct that represents a polynomial in the finite field GF(2^8).
  */
 
+#include <iosfwd>
+
 namespace aes {
     struct polynomial {
         unsigned char data;
@@ -41,6 +43,8 @@ namespace aes {
 
     polynomial operator*( polynomial, polynomial );
     polynomial operator/( polynomial, polynomial );
+
+    std::ostream & operator<<( std::ostream &, polynomial );
 }
 
 #endif // AES_POLYNOMIAL_H
