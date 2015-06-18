@@ -8,7 +8,7 @@
 
 /* Find last set; returns the index of the highest set bit.
  */
-int fls( unsigned i ) {
+inline int fls( unsigned i ) {
     return std::numeric_limits<unsigned>::digits - 1 - __builtin_clz(i);
 }
 
