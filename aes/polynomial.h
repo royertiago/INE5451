@@ -9,12 +9,21 @@ namespace aes {
         unsigned char data;
     };
 
-    polynomial operator+( polynomial, polynomial );
-    polynomial operator-( polynomial, polynomial );
+    inline polynomial operator+( polynomial p, polynomial q ) {
+        return {(unsigned char)(p.data ^ q.data)};
+    }
+    inline polynomial operator-( polynomial p, polynomial q ) {
+        return {(unsigned char)(p.data ^ q.data)};
+    }
+    inline bool operator==( polynomial p, polynomial q ) {
+        return p.data == q.data;
+    }
+    inline bool operator!=( polynomial p, polynomial q ) {
+        return p.data != q.data;
+    }
+
     polynomial operator*( polynomial, polynomial );
     polynomial operator/( polynomial, polynomial );
-    polynomial operator==( polynomial, polynomial );
-    polynomial operator!=( polynomial, polynomial );
 }
 
 #endif // AES_POLYNOMIAL_H
