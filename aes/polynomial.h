@@ -26,6 +26,11 @@ namespace aes {
         explicit polynomial( unsigned char data ) :
             data(data)
         {}
+
+        /* Returns the multiplicative inverse of this polynomial,
+         * or the null polynomial if data == 0.
+         */
+        polynomial inv() const;
     };
 
     inline polynomial operator+( polynomial p, polynomial q ) {
