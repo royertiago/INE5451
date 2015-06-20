@@ -45,9 +45,12 @@ namespace {
         }
 
         void init_inverse() {
-            // We will use the value 0 to mean "uninitialized".
-            for( int i = 0; i < 256; i++ )
-                aes_inverse[i] = 0;
+            /* We will use the value 0 to mean "uninitialized".
+             * Note we need not to explicitly initialize aes_inverse with zero;
+             * it is a global array and the C++ Standard guarantees zero-initialization
+             * for such objects.
+             * (Working Draft for the C++ Standard, N3936, paragraph 3.6.2/2)
+             */
             for( int i = 1; i < 256; i++ ) {
                 if( aes_inverse[i] != 0 )
                     continue;
