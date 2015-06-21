@@ -54,6 +54,51 @@ namespace aes {
                 throw std::out_of_range( "aes::polynomial::unset: index is too large." );
             data &= ~(1u << index);
         }
+
+        // Nested class used to implement operator[].
+        struct byte_accessor {
+            friend class polynomial;
+            int index;
+            polynomial & p;
+        public:
+            operator bool() const {
+                return (p.data >> index) & 1;
+            }
+            byte_accessor & operator=( bool b ) {
+                if( b )
+                    p.set(index);
+                else
+                    p.unset(index);
+                return *this;
+            }
+
+            /* This version of the assignment operator
+             * is defined implicitly by the compiler.
+             * If we do not define it, there will be an ambiguous overload resolution
+             * for expressions like
+             *  p[0] = p[7]
+             * because we could either use the implicit operator
+             * or convert p[7] to bool and use the above operator.
+             */
+            byte_accessor & operator=( const byte_accessor & a ) {
+                return *this = (bool) a;
+            }
+        };
+
+        byte_accessor operator[]( int index ) {
+            if( index >= 8 )
+                throw std::out_of_range(
+                    "aes::polynomial::operator[]: index is too large."
+                );
+            return byte_accessor{ index, *this };
+        }
+        bool operator[]( int index ) const {
+            if( index >= 8 )
+                throw std::out_of_range(
+                    "aes::polynomial::operator[]: index is too large."
+                );
+            return get(index);
+        }
     };
 
     inline polynomial operator+( polynomial p, polynomial q ) {

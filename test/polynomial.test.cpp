@@ -30,7 +30,10 @@ TEST_CASE( "aes::polynomial division", "[aes]" ) {
 }
 
 TEST_CASE( "aes::polynomial bit accessors", "[aes]" ) {
-    aes::polynomial p(0x71);
+    using aes::polynomial;
+    polynomial p(0x71);
+
+    // Operation with accessor methods
     CHECK( p.get(0) == true );
     CHECK( p.get(1) == false );
     CHECK( p.get(2) == false );
@@ -50,7 +53,65 @@ TEST_CASE( "aes::polynomial bit accessors", "[aes]" ) {
     p.unset(7);
     CHECK( p.get(7) == false );
 
+    CHECK( p == polynomial(0x71) );
+
+    // Operation with polynomial::bit_accessor and boolean literals
+    CHECK( p[0] == true );
+    CHECK( p[1] == false );
+    CHECK( p[2] == false );
+    CHECK( p[3] == false );
+    CHECK( p[4] == true );
+    CHECK( p[5] == true );
+    CHECK( p[6] == true );
+    CHECK( p[7] == false );
+
+    p[0] = true;
+    CHECK( p[0] == true );
+    p[1] = true;
+    CHECK( p[1] == true );
+
+    p[1] = false;
+    CHECK( p[1] == false );
+    p[7] = false;
+    CHECK( p[7] == false );
+
+    // Operations between bit_accessor's.
+    CHECK( p[1] == p[2] );
+    CHECK( p[4] == p[5] );
+    CHECK( p[1] != p[4] );
+    CHECK( p[1] <= p[2] );
+    CHECK( p[1] <= p[4] );
+    CHECK( p[4] >= p[5] );
+    CHECK( p[4] >= p[1] );
+    CHECK( p[1] < p[4] );
+    CHECK( p[4] > p[1] );
+
+    p[0] = p[7];
+    CHECK( p[0] == false );
+    p[1] = p[7];
+    CHECK( p[1] == false );
+    p[0] = p[1] = p[4];
+    CHECK( p[0] == true );
+    CHECK( p[1] == true );
+
+    p[0] = !p[0];
+    CHECK( p[0] == false );
+    p[5] = p[4] ^ p[6];
+    CHECK( p[5] == false );
+    p[5] = p[4] || false;
+    CHECK( p[5] == true );
+    p[5] = p[4] && false;
+    CHECK( p[5] == false );
+    p[5] = p[4] | false;
+    CHECK( p[5] == true );
+    p[5] = p[4] & false;
+    CHECK( p[5] == false );
+    p[5] = ~p[5];
+    CHECK( p[5] == true );
+
+    // Exception tests
     CHECK_THROWS_AS( p.get(8), std::out_of_range );
     CHECK_THROWS_AS( p.set(8), std::out_of_range );
     CHECK_THROWS_AS( p.unset(8), std::out_of_range );
+    CHECK_THROWS_AS( p[8], std::out_of_range );
 }
