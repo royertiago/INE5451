@@ -17,3 +17,14 @@ TEST_CASE( "aes::polynomial::inv", "[aes]" ) {
         CHECK( (p * inv) == polynomial(1) );
     }
 }
+
+TEST_CASE( "aes::polynomial division", "[aes]" ) {
+    using aes::polynomial;
+    for( int i = 0; i < 256; i++ )
+        for( int j = 1; j < 256; j++ ) {
+            polynomial p(i);
+            polynomial q(j);
+            INFO( "Dividend " << p << " - Divisor " << q );
+            CHECK( ((p / q) * q) == p );
+        }
+}

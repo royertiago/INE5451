@@ -39,6 +39,11 @@ namespace aes {
     inline polynomial operator-( polynomial p, polynomial q ) {
         return polynomial( p.data ^ q.data );
     }
+    polynomial operator*( polynomial, polynomial );
+    inline polynomial operator/( polynomial p, polynomial q ) {
+        return p * q.inv();
+    }
+
     inline bool operator==( polynomial p, polynomial q ) {
         return p.data == q.data;
     }
@@ -46,8 +51,6 @@ namespace aes {
         return p.data != q.data;
     }
 
-    polynomial operator*( polynomial, polynomial );
-    polynomial operator/( polynomial, polynomial );
 
     std::ostream & operator<<( std::ostream &, polynomial );
 }
