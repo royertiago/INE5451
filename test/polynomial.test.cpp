@@ -28,3 +28,29 @@ TEST_CASE( "aes::polynomial division", "[aes]" ) {
             CHECK( ((p / q) * q) == p );
         }
 }
+
+TEST_CASE( "aes::polynomial bit accessors", "[aes]" ) {
+    aes::polynomial p(0x71);
+    CHECK( p.get(0) == true );
+    CHECK( p.get(1) == false );
+    CHECK( p.get(2) == false );
+    CHECK( p.get(3) == false );
+    CHECK( p.get(4) == true );
+    CHECK( p.get(5) == true );
+    CHECK( p.get(6) == true );
+    CHECK( p.get(7) == false );
+
+    p.set(0);
+    CHECK( p.get(0) == true );
+    p.set(1);
+    CHECK( p.get(1) == true );
+
+    p.unset(1);
+    CHECK( p.get(1) == false );
+    p.unset(7);
+    CHECK( p.get(7) == false );
+
+    CHECK_THROWS_AS( p.get(8), std::out_of_range );
+    CHECK_THROWS_AS( p.set(8), std::out_of_range );
+    CHECK_THROWS_AS( p.unset(8), std::out_of_range );
+}

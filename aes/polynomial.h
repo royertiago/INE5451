@@ -4,7 +4,9 @@
 /* Struct that represents a polynomial in the finite field GF(2^8).
  */
 
+#include <cstddef>
 #include <iosfwd>
+#include <stdexcept>
 
 namespace aes {
     struct polynomial {
@@ -31,6 +33,27 @@ namespace aes {
          * or the null polynomial if data == 0.
          */
         polynomial inv() const;
+
+        // Returns the bit at the given index.
+        bool get( std::size_t index ) const {
+            if( index >= 8 )
+                throw std::out_of_range( "aes::polynomial::get: index is too large." );
+            return (data >> index) & 1u;
+        }
+
+        // Sets the bit (turns the bit to 1) at the given index.
+        void set( std::size_t index ) {
+            if( index >= 8 )
+                throw std::out_of_range( "aes::polynomial::set: index is too large." );
+            data |= (1u << index);
+        }
+
+        // Unsets the bit (turns the bit to 0) at the given index.
+        void unset( std::size_t index ) {
+            if( index >= 8 )
+                throw std::out_of_range( "aes::polynomial::unset: index is too large." );
+            data &= ~(1u << index);
+        }
     };
 
     inline polynomial operator+( polynomial p, polynomial q ) {
