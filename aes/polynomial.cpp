@@ -94,4 +94,59 @@ namespace aes {
     polynomial operator*( polynomial p, polynomial q ) {
         return polynomial( aes_multiplication[p.data][q.data] );
     }
+
+    bool polynomial::get( std::size_t index ) const {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::get: index is too large." );
+        return (data >> index) & 1u;
+    }
+
+    void polynomial::set( std::size_t index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::set: index is too large." );
+        data |= (1u << index);
+    }
+
+    void polynomial::unset( std::size_t index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::unset: index is too large." );
+        data &= ~(1u << index);
+    }
+
+    using byte_accessor = polynomial::byte_accessor;
+
+    byte_accessor::operator bool() const {
+        return (p.data >> index) & 1;
+    }
+
+    byte_accessor & byte_accessor::operator=( bool b ) {
+        if( b )
+            p.set(index);
+        else
+            p.unset(index);
+        return *this;
+    }
+
+    /* This version of the assignment operator
+     * is defined implicitly by the compiler.
+     * If we do not define it, there will be an ambiguous overload resolution
+     * for expressions like
+     *  p[0] = p[7]
+     * because we could either use the implicit operator
+     * or convert p[7] to bool and use the above operator.
+     */
+    byte_accessor & byte_accessor::operator=( const byte_accessor & a ) {
+        return *this = (bool) a;
+    }
+
+    byte_accessor polynomial::operator[]( int index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::operator[]: index is too large." );
+        return byte_accessor{ index, *this };
+    }
+    bool polynomial::operator[]( int index ) const {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::operator[]: index is too large." );
+        return get(index);
+    }
 }

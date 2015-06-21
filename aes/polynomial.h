@@ -34,73 +34,40 @@ namespace aes {
          */
         polynomial inv() const;
 
-        // Returns the bit at the given index.
-        bool get( std::size_t index ) const {
-            if( index >= 8 )
-                throw std::out_of_range( "aes::polynomial::get: index is too large." );
-            return (data >> index) & 1u;
-        }
+        /* Returns the bit at the given index.
+         * Throws std::out_of_range if index is greater than 7.
+         */
+        bool get( std::size_t index ) const;
 
-        // Sets the bit (turns the bit to 1) at the given index.
-        void set( std::size_t index ) {
-            if( index >= 8 )
-                throw std::out_of_range( "aes::polynomial::set: index is too large." );
-            data |= (1u << index);
-        }
+        /* Sets the bit (turns the bit to 1) at the given index.
+         * Throws std::out_of_range if index is greater than 7.
+         */
+        void set( std::size_t index );
 
-        // Unsets the bit (turns the bit to 0) at the given index.
-        void unset( std::size_t index ) {
-            if( index >= 8 )
-                throw std::out_of_range( "aes::polynomial::unset: index is too large." );
-            data &= ~(1u << index);
-        }
+        /* Unsets the bit (turns the bit to 0) at the given index.
+         * Throws std::out_of_range if index is greater than 7.
+         */
+        void unset( std::size_t index );
 
         // Nested class used to implement operator[].
         struct byte_accessor {
-            friend class polynomial;
             int index;
             polynomial & p;
-        public:
-            operator bool() const {
-                return (p.data >> index) & 1;
-            }
-            byte_accessor & operator=( bool b ) {
-                if( b )
-                    p.set(index);
-                else
-                    p.unset(index);
-                return *this;
-            }
 
-            /* This version of the assignment operator
-             * is defined implicitly by the compiler.
-             * If we do not define it, there will be an ambiguous overload resolution
-             * for expressions like
-             *  p[0] = p[7]
-             * because we could either use the implicit operator
-             * or convert p[7] to bool and use the above operator.
-             */
-            byte_accessor & operator=( const byte_accessor & a ) {
-                return *this = (bool) a;
-            }
+            operator bool() const;
+            byte_accessor & operator=( bool b );
+            byte_accessor & operator=( const byte_accessor & a );
         };
 
-        byte_accessor operator[]( int index ) {
-            if( index >= 8 )
-                throw std::out_of_range(
-                    "aes::polynomial::operator[]: index is too large."
-                );
-            return byte_accessor{ index, *this };
-        }
-        bool operator[]( int index ) const {
-            if( index >= 8 )
-                throw std::out_of_range(
-                    "aes::polynomial::operator[]: index is too large."
-                );
-            return get(index);
-        }
+        /* Returns an accessor that can be used to mutate the element at the given index.
+         * This operator exists so that the polynomial might be treated as a vector.
+         * Throws std::out_of_range if index is greater than 7.
+         */
+        byte_accessor operator[]( int index );
+        bool operator[]( int index ) const;
     };
 
+    // Operators supported by aes::polynomial
     inline polynomial operator+( polynomial p, polynomial q ) {
         return polynomial( p.data ^ q.data );
     }
@@ -118,7 +85,6 @@ namespace aes {
     inline bool operator!=( polynomial p, polynomial q ) {
         return p.data != q.data;
     }
-
 
     std::ostream & operator<<( std::ostream &, polynomial );
 }
