@@ -50,20 +50,20 @@ namespace aes {
         void unset( std::size_t index );
 
         // Nested class used to implement operator[].
-        struct byte_accessor {
+        struct bit_accessor {
             int index;
             polynomial & p;
 
             operator bool() const;
-            byte_accessor & operator=( bool b );
-            byte_accessor & operator=( const byte_accessor & a );
+            bit_accessor & operator=( bool b );
+            bit_accessor & operator=( const bit_accessor & a );
         };
 
         /* Returns an accessor that can be used to mutate the element at the given index.
          * This operator exists so that the polynomial might be treated as a vector.
          * Throws std::out_of_range if index is greater than 7.
          */
-        byte_accessor operator[]( int index );
+        bit_accessor operator[]( int index );
         bool operator[]( int index ) const;
     };
 

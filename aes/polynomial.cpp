@@ -113,13 +113,13 @@ namespace aes {
         data &= ~(1u << index);
     }
 
-    using byte_accessor = polynomial::byte_accessor;
+    using bit_accessor = polynomial::bit_accessor;
 
-    byte_accessor::operator bool() const {
+    bit_accessor::operator bool() const {
         return (p.data >> index) & 1;
     }
 
-    byte_accessor & byte_accessor::operator=( bool b ) {
+    bit_accessor & bit_accessor::operator=( bool b ) {
         if( b )
             p.set(index);
         else
@@ -135,14 +135,14 @@ namespace aes {
      * because we could either use the implicit operator
      * or convert p[7] to bool and use the above operator.
      */
-    byte_accessor & byte_accessor::operator=( const byte_accessor & a ) {
+    bit_accessor & bit_accessor::operator=( const bit_accessor & a ) {
         return *this = (bool) a;
     }
 
-    byte_accessor polynomial::operator[]( int index ) {
+    bit_accessor polynomial::operator[]( int index ) {
         if( index >= 8 )
             throw std::out_of_range( "aes::polynomial::operator[]: index is too large." );
-        return byte_accessor{ index, *this };
+        return bit_accessor{ index, *this };
     }
     bool polynomial::operator[]( int index ) const {
         if( index >= 8 )
