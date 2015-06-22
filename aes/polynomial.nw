@@ -1,0 +1,378 @@
+\documentclass{article}
+\usepackage{noweb}
+\usepackage{minted}
+\usepackage{amssymb}
+\pagestyle{noweb}
+\begin{document}
+
+\section{Introduction}
+
+The AES encryption algorithm uses polynomials
+in the Galois field $GF(2^8)$ in most operations of the algorithm.
+The class [[aes::polynomial]] encapsulates operations like
+addition, multiplication and inverse in $GF(2^8)$
+in order to simplify the code in the remainder source codes.
+
+\section{Basic file structure}
+
+In the file [[polynomial.h]],
+we will define the class [[aes::polynomial]]
+and its supported operators.
+
+<<polynomial.h>>=
+    #ifndef AES_POLYNOMIAL_H
+    #define AES_POLYNOMIAL_H
+
+    <<Header include directives>>
+
+    namespace aes {
+        struct polynomial {
+            <<Class body>>
+        };
+
+        <<Operator declarations>>
+    }
+
+    #endif // AES_POLYNOMIAL_H
+@
+
+And in the file [[polynomial.cpp]],
+we will implement those methods and operators.
+For efficiency reasons,
+we will precompute the result of some operations (like the multiplication)
+at the beginning of the execution.
+
+<<polynomial.cpp>>=
+    #include "polynomial.h"
+    <<Source include directives>>
+    <<Precomputation code>>
+
+    namespace aes {
+        <<Class implementation>>
+    }
+@
+
+\section{Arithmetical operators}
+
+\subsection{Basic class structure}
+
+The essential information about a polynomial is the coefficients.
+Since we are working in $GF(2^8)$,
+we have $8$ coefficients in $\mathbb Z_2$.
+We will represent the vector of coefficients as a single [[unsigned char]].
+(This will be, in fact, the only data member of [[aes::polynomial]].)
+
+<<Class body>>=
+    unsigned char data;
+@
+
+The operators we will implement are very different from the usual operators
+for [[unsigned char]].
+Therefore, it is best to have no [[operator unsigned char()]]
+and to require the constructor to be [[explicit]].
+
+<<Class body>>=
+    polynomial() :
+        data(0)
+    {}
+
+    explicit polynomial( unsigned char data ) :
+        data(data)
+    {}
+@
+
+\subsection{Addition and subtraction}
+
+Addition and subtraction are implemented as bitwise xor of the data members.
+Since these operations are a single machine instruction,
+we will put the code in the header.
+
+<<Operator declarations>>=
+    inline polynomial operator+( polynomial p, polynomial q ) {
+        return polynomial( p.data ^ q.data );
+    }
+    inline polynomial operator-( polynomial p, polynomial q ) {
+        return polynomial( p.data ^ q.data );
+    }
+@
+
+\subsection{Multiplication}
+
+Multiplication is more complex, so we will define it in the source file.
+
+<<Operator declarations>>=
+    polynomial operator*( polynomial, polynomial );
+@
+
+We will precompute the multiplication table.
+(This piece of code will be integrated in the section \ref{precomputation}.)
+
+This code uses the function [[fls]],
+defined in [[bithack.hpp]].
+
+<<Source include directives>>=
+    #include "bithack.hpp"
+@
+
+<<Precompute multiplication>>=
+    constexpr unsigned aes_mod = 0b1'0001'1011;
+    unsigned char aes_multiplication[256][256];
+
+    void init_multiplication() {
+        for( unsigned i = 0; i < 256; i++ )
+        for( unsigned j = 0; j < 256; j++ ) {
+            unsigned mult = 0; // multiplication
+            unsigned ii = i, jj = j;
+            while( jj != 0 ) {
+                if( ii % 2 == 1 )
+                    mult ^= jj;
+                jj <<= 1;
+                ii >>= 1;
+            }
+            /* mult contains the multiplication of i and j.
+             * We will reduce it modulo aes_mod.
+             */
+            while( mult >= 0x100 ) {
+                int shift = fls(mult) - 8;
+                mult ^= (aes_mod << shift);
+            }
+
+            aes_multiplication[i][j] = mult;
+        }
+    }
+@
+
+Multiplication is now a mere matrix access.
+
+<<Class implementation>>=
+    polynomial operator*( polynomial p, polynomial q ) {
+        return polynomial( aes_multiplication[p.data][q.data] );
+    }
+@
+
+\subsection{Inversion and division}
+
+Division is of limited use;
+the most important here is the inversion operator,
+to which we will dedicate a method.
+
+<<Class body>>=
+    polynomial inv() const;
+@
+
+Again, we will resort to precomputations.
+
+<<Precompute inversion>>=
+    unsigned char aes_inverse[256];
+    void init_inverse() {
+        /* We will use the value 0 to mean "uninitialized".
+         * Note we need not to explicitly initialize aes_inverse with zero;
+         * it is a global array and the C++ Standard guarantees zero-initialization
+         * for such objects.
+         * (Working Draft for the C++ Standard, N3936, paragraph 3.6.2/2)
+         */
+        for( int i = 1; i < 256; i++ ) {
+            if( aes_inverse[i] != 0 )
+                continue;
+
+            unsigned char powers[256];
+            /* To compute the inverse of all numbers in time O(n),
+             * we will compute the orbits of sucessive values
+             * instead of unsing the extended euclidean algorithm.
+             *
+             * powers[k] will contain the value of i^k.
+             */
+            powers[0] = 1;
+            int k = 1;
+            while( true ) {
+                powers[k] = (polynomial(i) * polynomial(powers[k-1])).data;
+                if( powers[k] == 1 )
+                    break;
+                k++;
+            }
+            // i^k == 1; so, i^a * i^b == 1 for a + b == k.
+            for( int j = 0; j <= k; j++ ) {
+                aes_inverse[powers[j]] = powers[k-j];
+            }
+        }
+        // Note that aes_inverse[0] remains 0 for the entire algorithm.
+    }
+@
+
+Then, inversion is simply an array access,
+and division can be implemented as in any other field.
+
+<<Class implementation>>=
+    polynomial polynomial::inv() const {
+        return polynomial(aes_inverse[data]);
+    }
+@
+
+<<Operator declarations>>=
+    inline polynomial operator/( polynomial p, polynomial q ) {
+        return p * q.inv();
+    }
+@
+
+\subsection{Additional operators}
+
+We will implement equality operators mainly for testing.
+
+<<Operator declarations>>=
+    inline bool operator==( polynomial p, polynomial q ) {
+        return p.data == q.data;
+    }
+    inline bool operator!=( polynomial p, polynomial q ) {
+        return p.data != q.data;
+    }
+@
+
+One last operator: stream insertion operator.
+The easiest way is to implement in terms of [[std::bitset]].
+
+<<Header include directives>>=
+    #include <iosfwd>
+@
+
+<<Operator declarations>>=
+    std::ostream & operator<<( std::ostream &, polynomial );
+@
+
+<<Source include directives>>=
+    #include <bitset>
+    #include <ostream>
+@
+
+<<Class implementation>>=
+    std::ostream & operator<<( std::ostream & os, polynomial p ) {
+        os << std::bitset<8>(p.data);
+    }
+@
+
+
+\section{Value Precomputation \label{precomputation}}
+
+To effectively invoke the functions [[init_multiplication]]
+and [[init_inverse]],
+we will use some [[static]] classes hackery.
+
+<<Precomputation code>>=
+    namespace {
+        using namespace aes;
+        <<Precompute multiplication>>
+        <<Precompute inversion>>
+
+        class aes_cache_initializer {
+            static aes_cache_initializer instance;
+            aes_cache_initializer() {
+                init_multiplication();
+                init_inverse();
+            }
+        };
+        aes_cache_initializer aes_cache_initializer::instance;
+
+    } // anonymous namespace
+@
+
+\section{Direct bit access}
+
+We wish to implement [[operator[]]] for our class.
+First, we will start with simple bit access functions.
+
+<<Class body>>=
+    bool get( std::size_t index ) const {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::get: index is too large." );
+        return (data >> index) & 1u;
+    }
+
+    void set( std::size_t index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::set: index is too large." );
+        data |= (1u << index);
+    }
+
+    void unset( std::size_t index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::unset: index is too large." );
+        data &= ~(1u << index);
+    }
+@
+
+These functions permit a simpler syntax for accessing specific elements.
+
+\subsection{Proxy inner object}
+
+We will use a proxy object to implement [[operator[]]].
+
+<<Class body>>=
+    // Nested class used to implement operator[].
+    struct bit_accessor {
+        int index;
+        polynomial & p;
+
+        operator bool() const;
+        bit_accessor & operator=( bool b );
+        bit_accessor & operator=( const bit_accessor & a );
+    };
+
+    /* Returns an accessor that can be used to mutate the element at the given index.
+     * This operator exists so that the polynomial might be treated as a vector.
+     * Throws std::out_of_range if index is greater than 7.
+     */
+    bit_accessor operator[]( int index );
+@
+
+The additional [[operator=( const bit_accessor & )]]
+is needed because we cannot rely on implicit conversions.
+
+<<Header include directives>>=
+    #include <cstddef>
+    #include <stdexcept>
+@
+
+<<Class implementation>>=
+    using bit_accessor = polynomial::bit_accessor;
+
+    bit_accessor::operator bool() const {
+        return (p.data >> index) & 1;
+    }
+
+    bit_accessor & bit_accessor::operator=( bool b ) {
+        if( b )
+            p.set(index);
+        else
+            p.unset(index);
+        return *this;
+    }
+
+    bit_accessor & bit_accessor::operator=( const bit_accessor & a ) {
+        return *this = (bool) a;
+    }
+@
+
+And we can finally return such class from [[operator[]]].
+
+<<Class implementation>>=
+    bit_accessor polynomial::operator[]( int index ) {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::operator[]: index is too large." );
+        return bit_accessor{ index, *this };
+    }
+@
+
+For completeness, we will add a [[const]] version of this operator.
+
+<<Class body>>=
+    bool operator[]( int index ) const;
+@
+
+<<Class implementation>>=
+    bool polynomial::operator[]( int index ) const {
+        if( index >= 8 )
+            throw std::out_of_range( "aes::polynomial::operator[]: index is too large." );
+        return get(index);
+    }
+@
+
+\end{document}

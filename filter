@@ -1,0 +1,31 @@
+#!/bin/bash
+
+gawk '
+/^@file.*/ {echo = 1}
+
+/^@begin code*/ {beginCode = $0; echo = 0; next}
+
+/@defn.*/ {
+   print; print "@nl";
+   print "@text \\begin{minted}[mathescape]{C++}";
+   echo = 1;  
+   next; 
+}
+
+/^@end code*/ {
+   echo = 1;
+   print "@nl";
+   print "@text \\end{minted}";
+   print "@nl";
+   next
+}
+
+/@use .*/ {
+    print "@text // $\\langle\\langle$"$0"$\\rangle\\rangle$";
+    next
+}
+
+/^@.*/ {if (echo == 1) { print }}
+'
+
+$*
