@@ -53,6 +53,7 @@ obj := $(obj:.cpp=.o)
 # See submakefiles.md.
 include $(submakefiles)
 
+include literate.mk
 include latex.mk
 
 
