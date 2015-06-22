@@ -21,7 +21,7 @@ CXXFLAGS ?= -g
 ALL_CXXFLAGS := $(CXXFLAGS) -std=c++1y -iquote./ -isystem Catch/single_include
 ALL_LDFLAGS := $(LDFLAGS) -lboost_locale
 
-# Directories whose makefiles need to be included
+# List of makefiles that need to be included
 submakefiles := $(wildcard */makefile.mk)
 
 # Subdirecories thad need to be ignored by find.
@@ -52,6 +52,8 @@ obj := $(obj:.cpp=.o)
 #
 # See submakefiles.md.
 include $(submakefiles)
+
+include latex.mk
 
 
 -include $(dep)
