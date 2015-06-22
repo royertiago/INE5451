@@ -1,19 +1,11 @@
 #include "subbytes.h"
+#include "aes/precompute.h"
 #include "aes/polynomial.h"
 
 namespace aes {
     unsigned char s_box[256];
-} // namespace aes
 
-namespace {
-    using namespace aes;
-
-    class aes_subbytes_initializer {
-        static aes_subbytes_initializer instance;
-        aes_subbytes_initializer() {
-            init_s_box();
-        }
-
+    namespace detail {
         void init_s_box() {
             bool c[] = {1, 1, 0, 0, 0, 1, 1, 0}; // fixed constant
 
@@ -31,7 +23,6 @@ namespace {
 
                 s_box[i] = b.data;
             }
-        }
-    };
-    aes_subbytes_initializer aes_subbytes_initializer::instance;
-}
+        } // void init_s_box()
+    } // namespace detail
+} // namespace aes
