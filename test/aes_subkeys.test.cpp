@@ -23,4 +23,9 @@ TEST_CASE( "AES subkey generation", "[aes]" ) {
     CHECK( vec[8] == matrix("8E 51 EF 21 FA BB 45 22 E4 3D 7A 06 56 95 4B 6C") );
     CHECK( vec[9] == matrix("BF E2 BF 90 45 59 FA B2 A1 64 80 B4 F7 F1 CB D8") );
     CHECK( vec[10] == matrix("28 FD DE F8 6D A4 24 4A CC C0 A4 FE 3B 31 6F 26") );
+
+    for( int i = 0; i <= 10; i++ ) {
+        INFO( "i = " << i );
+        CHECK( aes::superkey(vec[i], i) == key );
+    }
 }
