@@ -83,4 +83,10 @@ namespace aes {
         return mixcolumn_inv_matrix * m;
     }
 
+    matrix addroundkey( const matrix & data, const matrix & key ) {
+        return data + key;
+    }
+    matrix addroundkey_inv( const matrix & data, const matrix & key ) {
+        return data + mixcolumn_inv(key);
+    }
 } // namespace aes
