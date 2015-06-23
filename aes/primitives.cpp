@@ -1,4 +1,4 @@
-#include "subbytes.h"
+#include "primitives.h"
 #include "aes/precompute.h"
 #include "aes/polynomial.h"
 
@@ -30,4 +30,20 @@ namespace aes {
 
         } // void init_s_box()
     } // namespace detail
+
+    matrix subbytes( const matrix & m ) {
+        matrix r;
+        for( int i = 0; i < 4; ++i )
+            for( int j = 0; j < 4; ++j )
+                r[i][j] = polynomial(s_box[m[i][j].data]);
+        return r;
+    }
+
+    matrix subbytes_inv( const matrix & m ) {
+        matrix r;
+        for( int i = 0; i < 4; ++i )
+            for( int j = 0; j < 4; ++j )
+                r[i][j] = polynomial(s_box_inv[m[i][j].data]);
+        return r;
+    }
 } // namespace aes

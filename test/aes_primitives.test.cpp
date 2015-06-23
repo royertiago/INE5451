@@ -1,4 +1,4 @@
-#include "aes/subbytes.h"
+#include "aes/primitives.h"
 #include <catch.hpp>
 
 using aes::matrix;

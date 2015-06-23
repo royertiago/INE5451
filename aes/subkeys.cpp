@@ -1,6 +1,6 @@
 #include "math/algo.hpp"
 #include "aes/subkeys.h"
-#include "aes/subbytes.h"
+#include "aes/primitives.h"
 
 #include <stdio.h>
 
