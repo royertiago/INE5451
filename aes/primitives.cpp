@@ -62,4 +62,25 @@ namespace aes {
                 r[i][j] = m[i][(j - i + 4) % 4];
         return r;
     }
+
+    const matrix mixcolumn_matrix = {
+        0x02, 0x03, 0x01, 0x01,
+        0x01, 0x02, 0x03, 0x01,
+        0x01, 0x01, 0x02, 0x03,
+        0x03, 0x01, 0x01, 0x02,
+    };
+    const matrix mixcolumn_inv_matrix = {
+        0x0E, 0x0B, 0x0D, 0x09,
+        0x09, 0x0E, 0x0B, 0x0D,
+        0x0D, 0x09, 0x0E, 0x0B,
+        0x0B, 0x0D, 0x09, 0x0E,
+    };
+
+    matrix mixcolumn( const matrix & m ) {
+        return mixcolumn_matrix * m;
+    }
+    matrix mixcolumn_inv( const matrix & m ) {
+        return mixcolumn_inv_matrix * m;
+    }
+
 } // namespace aes
