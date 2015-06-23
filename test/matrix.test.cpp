@@ -1,8 +1,33 @@
 #include "aes/matrix.h"
+#include <sstream>
 #include <catch.hpp>
 
 using p = aes::polynomial;
 using aes::matrix;
+
+TEST_CASE( "aes::matrix read and write", "[aes]" ) {
+    matrix a{
+        p(0xd4), p(0xe0), p(0xb8), p(0x1e),
+        p(0xbf), p(0xb4), p(0x41), p(0x27),
+        p(0x5d), p(0x52), p(0x11), p(0x98),
+        p(0x30), p(0xae), p(0xf1), p(0xe5),
+    };
+
+    std::string a_str = "d4 bf 5d 30 e0 b4 52 ae b8 41 11 f1 1e 27 98 e5";
+    std::stringstream stream( a_str );
+
+    matrix b;
+    stream >> b;
+    for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ ) {
+            INFO( "i = " << i << " - j = " << j );
+            CHECK( b[i][j] == a[i][j] );
+        }
+
+    stream.str("");
+    stream << b;
+    CHECK( stream.str() == a_str );
+}
 
 TEST_CASE( "aes::matrix multiplication", "[aes]" ) {
     matrix a{
