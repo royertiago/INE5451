@@ -1,3 +1,5 @@
+/* Example taken from http://www.kavaliro.com/wp-content/uploads/2014/03/AES.pdf
+ */
 #include "aes/aes.h"
 #include <catch.hpp>
 
