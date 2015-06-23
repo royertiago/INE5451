@@ -4,6 +4,7 @@
 
 namespace aes {
     unsigned char s_box[256];
+    unsigned char s_box_inv[256];
 
     namespace detail {
         void init_s_box() {
@@ -23,6 +24,10 @@ namespace aes {
 
                 s_box[i] = b.data;
             }
+
+            for( int i = 0; i < 256; i++ )
+                s_box_inv[s_box[i]] = i;
+
         } // void init_s_box()
     } // namespace detail
 } // namespace aes
