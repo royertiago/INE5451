@@ -4,20 +4,18 @@
 /* Templated mathematical algorithms.
  */
 
-#include "bithack.hpp"
-
 namespace math {
-    /* Computes t^i, T is a member of a semigroup.
-     * We assume i > 0.
+    /* Computes t^i, T is a member of a monoid.
+     * We assume T(1) is the identity of that monoid.
      */
     template< typename T >
     T pow( T t, unsigned i ) {
-        // Square and multiply algorithm.
-        T r(t);
-        for( int k = fls(i) - 1; k >= 0; k-- ) {
-            r = r * r;
-            if( (i >> k) % 2 == 1 )
+        T r(1);
+        while( i != 0 ) {
+            if( i % 2 == 1 )
                 r = r * t;
+            t = t * t;
+            i >>= 1;
         }
         return r;
     }

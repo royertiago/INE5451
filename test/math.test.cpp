@@ -6,4 +6,5 @@ TEST_CASE( "Square and Multiply algorithm", "[math]" ) {
     CHECK( math::pow(2, 5) == 32 );
     CHECK( math::pow(3, 2) == 9 );
     CHECK( math::pow(5, 3) == 125 );
+    CHECK( math::pow(7, 0) == 1 );
 }
