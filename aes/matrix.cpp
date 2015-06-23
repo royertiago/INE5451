@@ -1,8 +1,39 @@
 #include <iostream>
 #include <ostream>
+#include <sstream>
+#include <stdexcept>
 #include "aes/matrix.h"
 
 namespace aes {
+    matrix::matrix( const std::string & str ) {
+        std::stringstream stream(str);
+        stream >> *this;
+        if( !stream )
+            throw std::invalid_argument( "aes::matrix: Invalid string" );
+    }
+
+    matrix::matrix( std::initializer_list<polynomial> list ) {
+        auto it = list.begin();
+        polynomial * ptr = &data[0][0];
+        for( int i = 0; i < 16 && it != list.end(); ++i, ++ptr, ++it )
+            *ptr = *it;
+        if( it != list.end() )
+            throw std::out_of_range( "aes::matrix: Initializer list is too large" );
+    }
+            
+    matrix::matrix( std::initializer_list<unsigned> list ) {
+        auto it = list.begin();
+        polynomial * ptr = &data[0][0];
+        for( int i = 0; i < 16 && it != list.end(); ++i, ++ptr, ++it ) {
+            if( *it > 255 )
+                throw std::out_of_range( "aes::matrix: \"byte\" is greater than 256" );
+
+            *ptr = polynomial(*it);
+        }
+        if( it != list.end() )
+            throw std::out_of_range( "aes::matrix: Initializer list is too large" );
+    }
+
     matrix operator+( const matrix & a, const matrix & b ) {
         matrix m;
         for( int i = 0; i < 4; i++ )

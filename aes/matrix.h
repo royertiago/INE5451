@@ -11,6 +11,30 @@ namespace aes {
     struct matrix {
         polynomial data[4][4];
 
+        matrix() = default;
+
+        /* Parse the string via operator>>.
+         * Throws std::invalid_argument if invalid string.
+         */
+        matrix( const std::string & );
+
+        /* Fills the matrix entries linewise.
+         * Note that the filling is linewise, as it is in C matrices,
+         * not columnwise, as it is done by operator>>.
+         * Throws std::out_of_range if the initializer list is too big,
+         * leaves null members if the list is too short.
+         */
+        matrix( std::initializer_list<polynomial> );
+
+        /* Same as the constructor for std::initializer_list<polynomial>,
+         * but additionally throws std::out_of_range
+         * if any of the values is greater than 255.
+         *
+         * (The type is unsigned instead of unsigned char
+         * to avoid narrowing-conversion errors.)
+         */
+        matrix( std::initializer_list<unsigned> );
+
         polynomial * operator[]( std::size_t index ) {
             return &data[index][0];
         }

@@ -1,11 +1,12 @@
 #include "aes/matrix.h"
 #include <sstream>
+#include <stdexcept>
 #include <catch.hpp>
 
 using p = aes::polynomial;
 using aes::matrix;
 
-TEST_CASE( "aes::matrix read and write", "[aes]" ) {
+TEST_CASE( "aes::matrix constructors", "[aes]" ) {
     matrix a{
         p(0xd4), p(0xe0), p(0xb8), p(0x1e),
         p(0xbf), p(0xb4), p(0x41), p(0x27),
@@ -23,6 +24,22 @@ TEST_CASE( "aes::matrix read and write", "[aes]" ) {
     stream.str("");
     stream << b;
     CHECK( stream.str() == a_str );
+
+    matrix c( a_str );
+    CHECK( c == b );
+
+    matrix d{
+        0xd4, 0xe0, 0xb8, 0x1e,
+        0xbf, 0xb4, 0x41, 0x27,
+        0x5d, 0x52, 0x11, 0x98,
+        0x30, 0xae, 0xf1, 0xe5,
+    };
+    CHECK( a == d );
+
+    CHECK_THROWS_AS( matrix("Error"), std::invalid_argument );
+    CHECK_THROWS_AS( matrix{0x100}, std::out_of_range );
+    CHECK_THROWS_AS( (matrix{1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,1u,}),
+            std::out_of_range );
 }
 
 TEST_CASE( "aes::matrix multiplication", "[aes]" ) {
