@@ -12,6 +12,8 @@ namespace aes {
 
     matrix subbytes( const matrix & );
     matrix subbytes_inv( const matrix & );
+    matrix shiftrow( const matrix & );
+    matrix shiftrow_inv( const matrix & );
 }
 
 #endif // AES_PRIMITIVES_H
