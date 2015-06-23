@@ -18,11 +18,7 @@ TEST_CASE( "aes::matrix read and write", "[aes]" ) {
 
     matrix b;
     stream >> b;
-    for( int i = 0; i < 4; i++ )
-        for( int j = 0; j < 4; j++ ) {
-            INFO( "i = " << i << " - j = " << j );
-            CHECK( b[i][j] == a[i][j] );
-        }
+    CHECK( a == b );
 
     stream.str("");
     stream << b;
@@ -49,10 +45,5 @@ TEST_CASE( "aes::matrix multiplication", "[aes]" ) {
         p(0xe5), p(0x9a), p(0x7a), p(0x4c),
     };
 
-    matrix mult = m * a;
-    for( int i = 0; i < 4; i++ )
-        for( int j = 0; j < 4; j++ ) {
-            INFO( "i = " << i << " - j = " << j );
-            CHECK( mult[i][j] == r[i][j] );
-        }
+    CHECK( (m * a) == r );
 }

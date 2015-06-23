@@ -23,6 +23,17 @@ namespace aes {
     matrix operator+( const matrix &, const matrix & );
     matrix operator*( const matrix &, const matrix & );
 
+    inline bool operator==( const matrix & a, const matrix & b ) {
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ )
+            if( a[i][j] != b[i][j] )
+                return false;
+        return true;
+    }
+    inline bool operator!=( const matrix & a, const matrix & b ) {
+        return !( a == b );
+    }
+
     /* Interprets a list of 32 hexadecimal characters as an aes::matrix.
      * The characters are stored column-wise in the matrix;
      * that is, the first two characters represent index [0][0],
