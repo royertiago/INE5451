@@ -11,7 +11,7 @@ using aes::matrix;
 
 TEST_CASE( "AES subkey generation", "[aes]" ) {
     matrix key("54 68 61 74 73 20 6D 79 20 4B 75 6E 67 20 46 75");
-    auto vec = aes::subkeys(key);
+    auto vec = aes::subkeys(key, 10);
     CHECK( vec[0] == matrix("54 68 61 74 73 20 6D 79 20 4B 75 6E 67 20 46 75") );
     CHECK( vec[1] == matrix("E2 32 FC F1 91 12 91 88 B1 59 E4 E6 D6 79 A2 93") );
     CHECK( vec[2] == matrix("56 08 20 07 C7 1A B1 8F 76 43 55 69 A0 3A F7 FA") );

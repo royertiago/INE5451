@@ -8,7 +8,7 @@
 
 namespace aes {
     // Returns the subkeys of the given key.
-    std::vector<matrix> subkeys( matrix key );
+    std::vector<matrix> subkeys( matrix key, int rounds );
 
     /* Computes the key that generated the given subkey
      * at the specified round.

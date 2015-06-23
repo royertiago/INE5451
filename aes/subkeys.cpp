@@ -5,11 +5,11 @@
 #include <stdio.h>
 
 namespace aes {
-    std::vector<matrix> subkeys( matrix key ) {
+    std::vector<matrix> subkeys( matrix key, int rounds ) {
         std::vector<matrix> subkeys;
         subkeys.push_back( key );
 
-        for( int i = 0; i < 10; i++ ) {
+        for( int i = 0; i < rounds; i++ ) {
             matrix last = subkeys.back();
             matrix next;
 

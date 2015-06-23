@@ -12,6 +12,7 @@ namespace {
     matrix aes_aux(
         const matrix & data,
         const std::vector<matrix> keys,
+        int rounds,
         matrix (*ARK)( const matrix &, const matrix & ),
         matrix (*SB)( const matrix & ),
         matrix (*SR)( const matrix & ),
@@ -19,7 +20,7 @@ namespace {
     )
     {
         matrix r = aes::addroundkey(data, keys[0]);
-        for( int i = 1; i < 10; i++ ) {
+        for( int i = 1; i < rounds; i++ ) {
             r = SB( r );
             r = SR( r );
             r = MC( r );
@@ -27,16 +28,16 @@ namespace {
         }
         r = SB( r );
         r = SR( r );
-        r = aes::addroundkey( r, keys[10] );
+        r = aes::addroundkey( r, keys[rounds] );
 
         return r;
     }
 } // anonymous namespace
 
 namespace aes {
-    matrix aes( const matrix & data, const matrix & key ) {
+    matrix aes( const matrix & data, const matrix & key, int rounds ) {
         return aes_aux(
-            data, aes::subkeys(key),
+            data, aes::subkeys(key, rounds), rounds,
             addroundkey,
             subbytes,
             shiftrow,
@@ -44,10 +45,10 @@ namespace aes {
         );
     }
 
-    matrix aes_inv( const matrix & data, const matrix & key ) {
-        auto vec = aes::subkeys(key);
+    matrix aes_inv( const matrix & data, const matrix & key, int rounds ) {
+        auto vec = aes::subkeys(key, rounds);
         return aes_aux(
-            data, std::vector<matrix>( vec.rbegin(), vec.rend() ),
+            data, std::vector<matrix>( vec.rbegin(), vec.rend() ), rounds,
             addroundkey_inv,
             subbytes_inv,
             shiftrow_inv,
