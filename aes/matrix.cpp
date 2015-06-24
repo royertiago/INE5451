@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <sstream>
@@ -90,7 +91,9 @@ namespace aes {
         const char * separator = "";
         for( int j = 0; j < 4; j++ )
             for( int i = 0; i < 4; i++ ) {
-                os << separator << std::hex << (int) m[i][j].data;
+                os << separator
+                    << std::setfill('0') << std::setw(2) << std::hex
+                    << (int) m[i][j].data;
                 separator = " ";
             }
         return os;
