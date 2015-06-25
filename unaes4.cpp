@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include "aes/aes.h"
 #include "aes/primitives.h"
 #include "aes/subkeys.h"
 
@@ -49,29 +50,90 @@ void process_integral() {
     }
 }
 
+bool test_key( aes::matrix candidate ) {
+    /* A key is only valid if, when decryping two integral outputs,
+     * the result differ exactly in one byte.
+     *
+     * Altough this does not guarantee that the key is the correct one,
+     * we will assume the AES is sufficiently random
+     * so that the false positive chance is low enough.
+     */
+    aes::matrix a = aes::aes_inv( integral[0], candidate, 4 );
+    aes::matrix b = aes::aes_inv( integral[1], candidate, 4 );
+    int differences = 0;
+    for( int i = 0; i < 4; i++ )
+    for( int j = 0; j < 4; j++ )
+        differences += (a[i][j] != b[i][j]);
+
+    return differences == 1;
+}
+
+/* Besides simply searching for the most voted key candidate,
+ * we will also optionally do a brute-force attack
+ * between all possible candidates.
+ *
+ * voted[i][j] is a vector that contains the list of candidates
+ * for the byte [i][j] that were vote by every integral.
+ */
 bool process_votes() {
-    aes::matrix key;
+    std::vector<aes::polynomial> voted[4][4]; // a matrix of std::vector
+    int brute_force_key_space = 1;
+
     for( int i = 0; i < 4; i++ )
     for( int j = 0; j < 4; j++ ) {
         bool has_candidate = false;
-        for( int k = 0; k < 256; k++ ) {
-            if( votes[i][j][k] == processed_integrals ) {
-                if( has_candidate ) {
-                    std::cerr << "Insuficient data to determine index " << i << ',' << j
-                        << " of the key.\n";
-                    return false;
-                }
-                has_candidate = true;
-                key[i][j] = aes::polynomial( k );
-            }
-        }
-        if( !has_candidate ) {
+        for( int k = 0; k < 256; k++ )
+            if( votes[i][j][k] == processed_integrals )
+                voted[i][j].push_back( aes::polynomial(k) );
+
+        if( voted[i][j].empty() ) {
             std::cerr << "Inconsistent information at index " << i << ',' << j << '\n';
             return false;
         }
+        brute_force_key_space *= voted[i][j].size();
     }
-    std::cout << aes::superkey(key, 4) << std::endl;
-    return true;
+
+    /* Hopefully, there are only a few possible candidates for each byte
+     * in voted[i][j].
+     * We will now test every possible candidate combination
+     * if it is the searched key.
+     */
+    if( brute_force_key_space != 1 )
+        std::cerr << "Warning: brute-forcing through " << brute_force_key_space
+            << " key candidates...\n";
+
+    std::vector<aes::polynomial>::iterator index[4][4]; // index matrix
+    for( int i = 0; i < 4; i++ )
+    for( int j = 0; j < 4; j++ ) {
+        index[i][j] = voted[i][j].begin();
+    }
+
+    bool found = false;
+    for( int k = 0; k < brute_force_key_space; k++ ) {
+        aes::matrix key_candidate;
+        // Build the candidate
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ )
+            key_candidate[i][j] = *index[i][j];
+
+        // Test the candidate
+        if( test_key(aes::superkey(key_candidate, 4)) ) {
+            std::cout << aes::superkey(key_candidate, 4) << std::endl;
+            found = true;
+        }
+
+        // Advance index matrix
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ ) {
+            ++index[i][j];
+            if( index[i][j] == voted[i][j].end() )
+                index[i][j] = voted[i][j].begin();
+            else
+                goto end_index_advancing_loop;
+        }
+end_index_advancing_loop:;
+    }
+    return found;
 }
 
 int main() {
