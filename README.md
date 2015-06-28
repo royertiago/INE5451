@@ -40,3 +40,9 @@ e.g.
 
 (The makefile is already set up to link with `boost_locale`,
  assuming you got Boost.Locale this way.)
+
+The relactories were written in LaTeX using the `minted` package.
+You need also `latexmk`, avaliable in the package `texlive-full`.
+`minted` uses Pygments, avaliable in the package `python-pygments`.
+
+    sudo apt-get install latexmk python-pygments

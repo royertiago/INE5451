@@ -10,7 +10,8 @@ all: doc
 doc: $(pdf)
 
 $(pdf): %.pdf : %.tex
-	cd $(docdir) && latexmk -pdf $(notdir $<)
+	cd $(docdir);\
+	latexmk -pdf $(notdir $<) -pdflatex="pdflatex --shell-escape %O %S"
 
 .PHONY: doc-mostlyclean
 mostlyclean: doc-mostlyclean
