@@ -8,6 +8,7 @@
 
 \usepackage{minted}
 \newminted{cpp}{gobble=4}
+\newcommand{\xor}{\otimes}
 
 \title{
     INE5451 - Tópicos Especiais em Algoritmos I \\
@@ -39,5 +40,59 @@ Escolhemos fazer as últimas três questões, relacionadas ao log discreto.
 
 Novamente, fizemos todos os programas em C++.
 Nosso código está disponível em \texttt{https://github.com/royertiago/INE5451}.
+
+\section{Questão 2 --- Ataque quadrado ao AES}
+
+Este problema pedia que implementássemos o ataque quadrado ao AES.
+Como o algoritmo foi estudado em detalhes na aula,
+discutiremos aqui apenas questões de implementação.
+
+\subsection{Estruturas de dados}
+
+A classe \verb"polynomial", definida no arquivo \verb"aes/polynomial.h",
+encapsula toda a parafernália necessária
+para multiplicar dois polinômios num corpo de Galois.
+Esta classe é ``átomo'' do algoritmo AES.
+Em essência, a interface de \verb"polynomial" é
+\begin{cppcode}
+    namespace aes {
+        struct polynomial {
+            unsigned char data;
+            explicit polynomial( unsigned char );
+        };
+        polynomial operator+( polynomial, polynomial );
+        polynomial operator*( polynomial, polynomial );
+    } // namespace aes
+\end{cppcode}
+(Outros métodos e operadores foram definidos,
+mas estes são os mais importantes.)
+Por questões de eficiência,
+a multiplicação foi implementada usando uma tabela de lookup.
+
+O construtor da \verb"struct" é explícito para minimizar o risco
+de conversões implícitas;
+as operações de soma e multiplicação de \verb"polynomial"
+são muito diferentes da soma e multiplicação de \verb"unsigned char",
+portanto é importante que estes dois tipos fiquem bem separados.
+
+Também implementamos a classe \verb"matrix", em \verb"aes/matrix.h".
+Exceto a caixa-S,
+todas as funções do ``módulo'' AES trabalham diretamente com matrizes;
+elas representam a chave, os dados, e as operações lineares do algoritmo.
+Em essência, a interface é
+\begin{cppcode}
+    namespace aes {
+        struct matrix {
+            polynomial data[4][4];
+            polynomial * operator[]( std::size_t index );
+        };
+        matrix operator+( const matrix&, const matrix& );
+        matrix operator*( const matrix&, const matrix& );
+    } // namespace aes
+\end{cppcode}
+
+A soma é feita em termos do \verb"polynomial",
+que se encarrega de utilizar $\xor$.
+A multiplicação é a multiplicação usual de matrizes.
 
 \end{document}
