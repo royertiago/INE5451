@@ -3,14 +3,14 @@ docdir := $(dir $(lastword $(MAKEFILE_LIST)))
 # Stripped slash directory
 docsdir := $(patsubst %/,%,$(docdir))
 
-pdf := $(docdir)relatorio.pdf
+pdf := $(docdir)relatorio1.pdf $(docdir)relatorio2.pdf
 
 .PHONY: doc
 all: doc
 doc: $(pdf)
 
-$(pdf): $(docdir)relatorio.tex
-	cd $(docdir) && latexmk -pdf relatorio.tex
+$(pdf): %.pdf : %.tex
+	cd $(docdir) && latexmk -pdf $(notdir $<)
 
 .PHONY: doc-mostlyclean
 mostlyclean: doc-mostlyclean
