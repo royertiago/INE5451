@@ -49,50 +49,19 @@ discutiremos aqui apenas questões de implementação.
 
 \subsection{Estruturas de dados}
 
-A classe \verb"polynomial", definida no arquivo \verb"aes/polynomial.h",
-encapsula toda a parafernália necessária
-para multiplicar dois polinômios num corpo de Galois.
-Esta classe é ``átomo'' do algoritmo AES.
-Em essência, a interface de \verb"polynomial" é
-\begin{cppcode}
-    namespace aes {
-        struct polynomial {
-            unsigned char data;
-            explicit polynomial( unsigned char );
-        };
-        polynomial operator+( polynomial, polynomial );
-        polynomial operator*( polynomial, polynomial );
-    } // namespace aes
-\end{cppcode}
-(Outros métodos e operadores foram definidos,
-mas estes são os mais importantes.)
-Por questões de eficiência,
-a multiplicação foi implementada usando uma tabela de lookup.
+Definimos duas estruturas de dados para este algoritmo.
+A primeira,
+a classe \verb"polynomial"
+(definida no arquivo \verb"aes/polynomial.h"),
+encapsula toda a parafernália relacionada
+à manipulação de elementos no corpo de Galois usado pelo AES.
+A multiplicação de dois elementos é tabelada no início do programa,
+reduzindo o cálculo do produto de dois elementos do corpo
+a um acesso a vetor.
 
-O construtor da \verb"struct" é explícito para minimizar o risco
-de conversões implícitas;
-as operações de soma e multiplicação de \verb"polynomial"
-são muito diferentes da soma e multiplicação de \verb"unsigned char",
-portanto é importante que estes dois tipos fiquem bem separados.
-
-Também implementamos a classe \verb"matrix", em \verb"aes/matrix.h".
-Exceto a caixa-S,
-todas as funções do ``módulo'' AES trabalham diretamente com matrizes;
-elas representam a chave, os dados, e as operações lineares do algoritmo.
-Em essência, a interface é
-\begin{cppcode}
-    namespace aes {
-        struct matrix {
-            polynomial data[4][4];
-            polynomial * operator[]( std::size_t index );
-        };
-        matrix operator+( const matrix&, const matrix& );
-        matrix operator*( const matrix&, const matrix& );
-    } // namespace aes
-\end{cppcode}
-
-A soma é feita em termos do \verb"polynomial",
-que se encarrega de utilizar $\xor$.
-A multiplicação é a multiplicação usual de matrizes.
+A segunda clase,
+\verb"matrix" (definida em \verb"aes/matrix.h"),
+representa as chaves, subchaves, dados a serem cifrados
+e algumas operações lineares.
 
 \end{document}
