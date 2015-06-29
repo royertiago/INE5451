@@ -161,4 +161,49 @@ podemos calcular a chave original a partir de qualquer subchave.
 
 Estes algoritmos estão implementados no arquivo \verb"aes/subkeys.cpp".
 
+\subsection{Etapas intermediárias do algoritmo}
+
+As etapas \emph{AddRoundKey}, \emph{SubBytes}, \emph{ShiftRow} e \emph{MixColumn}
+foram implementadas cada uma numa função separada.
+As interfaces estão no arquivo \verb"aes/primitives.h".
+
+\begin{cppcode}
+    namespace aes {
+        matrix addroundkey( const matrix & data, const matrix & key );
+        matrix addroundkey_inv( const matrix & data, const matrix & key );
+        matrix subbytes( const matrix & );
+        matrix subbytes_inv( const matrix & );
+        matrix shiftrow( const matrix & );
+        matrix shiftrow_inv( const matrix & );
+        matrix mixcolumn( const matrix & );
+        matrix mixcolumn_inv( const matrix & );
+    }
+\end{cppcode}
+
+Cada função \verb"_inv" correspondente é a inversa da função original,
+exceto \verb"addroundkey_inv".
+A inversa da \emph{AddRoundKey} foi definida
+de forma a comutar com \emph{MixColumn}.
+Isto é,
+\begin{equation*}
+    IARK( IMC(d), k ) = IMC( ARK(d, k) ),
+\end{equation*}
+para o dado $d$ e a chave $k$.
+Esta alteração foi feita visando implementar tanto o algoritmo de encriptação
+quanto o de decriptação com o mesmo formato.
+
+Para satisfazer a equação anterior, note que
+\begin{equation*}
+    ARK( d, k ) = d \xor k.
+\end{equation*}
+Agora, $IMC$ é uma operação linear; portanto,
+\begin{equation*}
+    IMC( ARK(d, k) ) = IMC( d \xor k ) = IMC(d) \xor IMC(k)
+\end{equation*}
+Portanto, basta definir
+\begin{equation*}
+    IARK( d', k ) = d' \xor IMC(k)
+\end{equation*}
+para que a equação seja satisfeita.
+
 \end{document}
