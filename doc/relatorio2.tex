@@ -278,4 +278,48 @@ Por isso, não usamos a variável \verb"ARK" nestas linhas.
 
 Estas funções estão implementadas em \verb"aes/aes.cpp".
 
+\subsection{Geração de integrais}
+
+De posse destas funções,
+ficou muito simples implementar o programa \verb"generate_aes_integrals".
+O formato de entrada deste programa é uma lista de casos de teste
+delimitada por fim de arquivo.
+Cada caso de teste é constituido de duas linhas com 16 bytes cada (em hexadecimal),
+seguidos de dois números $i$ e $r$ em decimal.
+
+A primeira linha é uma linha de dados,
+a segunda linha é a chave,
+$i$ é o índice que deve ser saturado e $r$ é o número de rodadas.
+
+Para cada caso de teste,
+o programa irá gerar uma integral, com o índice $i$ saturado,
+e as constantes para as demais posições vem da linha de dados.
+O programa, então, submete os textos da integral a $r$ rodadas do AES,
+e as imprime.
+
+Cada bloco de 256 textos está separado por uma linha em branco.
+
+Exemplo de entrada:
+\footnote{
+    Em ambos os casos de teste, a chave é a codificação UTF-8 do texto
+    \texttt{CS \textbackslash{}subset MATH}.
+    Os primeiros 15 caracteres do primeiro caso é a codificação UTF-8
+    de \texttt{Criptoanálise}
+    e o texto do segundo caso de teste é a codificação UTF-8
+    de \texttt{Encrypt/Decrypt}.
+}
+\begin{minted}[gobble=4]{text}
+    72 43 70 69 6F 74 6E 61 A1 C3 69 6C 65 73 0A 00
+    53 43 5C 20 75 73 73 62 74 65 4D 20 54 41 0A 48
+    15
+    4
+
+    6E 45 72 63 70 79 2F 74 65 44 72 63 70 79 0A 74
+    53 43 5C 20 75 73 73 62 74 65 4D 20 54 41 0A 48
+    6
+    4
+\end{minted}
+Esta entrada foi usada para gerar as integrais do arquivo
+\verb"sample_integrals.txt".
+
 \end{document}
