@@ -6,9 +6,20 @@
 \usepackage{amsthm}
 \newtheorem{theorem}{Teorema}
 
+\usepackage{tikz}
+
 \usepackage{minted}
 \newminted{cpp}{gobble=4}
 \newcommand{\xor}{\otimes}
+
+\newcommand{\colvec}[1]{
+    \tikz[baseline=-3pt]{
+        \node (center) at (0, 0) {$#1$};
+        \draw (center) -- (0, 1) (0, 1.2);
+        \draw (center) -- (0, -1) (0, -1.2);
+    }
+    % O -3pt, o 1.2 e o -1.2 são admitidamente gambiarrizados.
+}
 
 \title{
     INE5451 - Tópicos Especiais em Algoritmos I \\
@@ -63,5 +74,91 @@ A segunda clase,
 \verb"matrix" (definida em \verb"aes/matrix.h"),
 representa as chaves, subchaves, dados a serem cifrados
 e algumas operações lineares.
+
+\subsection{Extração e reconstrução de subchaves}
+
+Visando simplificar o algoritmo,
+separamos em funções as operações do AES.
+A extração de subchaves a partir de uma chave
+e reconstituição da chahve original a partir de uma subchave
+ficaram no arquivo \verb"aes/subkeys.h".
+
+\begin{cppcode}
+    namespace aes {
+        std::vector<matrix> subkeys( matrix key, int rounds );
+        matrix superkey( const matrix & subkey, int round );
+    }
+\end{cppcode}
+
+A função \verb"subkeys" constrói um vetor de \verb"rounds+1" subchaves
+a partir da chave dada;
+O elemento de índice $0$ do vetor de subchaves é a própria chave inicial,
+e o elemento no índice $i$ é a subchave usada pela operação \emph{AddRoundKey}
+na rodada $i$ do AES.
+(Adicionamos o parâmetro \verb"rounds" para facilitar a alternância
+entre o AES com 4 rodadas e o AES com 10.)
+A função \verb"superkey" reconstrói a chave original,
+assumindo que a chave dada veio da rodada \verb"round".
+
+Embora a norma do AES defina a geração de subchaves em termos de
+uma lista de vetores-coluna%
+\footnote{
+    Usamos o termo ``vetor-coluna'' no sentido que ele tem na álgebra linear.
+    Adicionamos o sufixo ``-coluna'' para diferenciá-lo
+    do conceito de ``vetor'' utilizado nas linguagens de programação
+    (o ``vetor'' de ``vetor de subchaves'').
+},
+usando apenas as colunas $W(4i)$, $W(4i+1)$, $W(4i+2)$ e $W(4i+3)$
+podemos determinar todas as colunas seguintes;
+em particular,
+a partir da subchave da rodada $i$
+podemos construir a subchave da rodada $i+1$.
+Se interpretarmos a chave original como a ``subchave da rodada $0$'',
+esta relação também vale para $i = 0$;
+esta observação simplifica o código.
+
+Especificamente: suponha que a subchave da rodada $i$
+seja dada pela matriz
+\begin{equation*}
+    \left[ \colvec{a_i} \colvec{b_i} \colvec{c_i} \colvec{d_i} \right].
+\end{equation*}
+Temos $a_i = W(4i)$, $b_i = W(4i+1)$, $c_i = W(4i+2)$ e $d_i = W(4i+3)$.
+Basta substituir os valores pelas fórmulas válidas para os $W$
+para chegarmos a
+\begin{align*}
+    a_{i+1} &= a_i \xor T(d_i) \\
+    b_{i+1} &= b_i \xor a_{i+1} \\
+    c_{i+1} &= d_i \xor b_{i+1} \\
+    d_{i+1} &= d_i \xor c_{i+1}
+\end{align*}
+A transformação $T$ depende apenas do número da rodada atual e do valor de $d_i$;
+de posse de $a_{i+1}$, podemos computar $b_{i+1}$,
+e então $c_{i+1}$
+e, finalmente, $d_{i+1}$.
+Portanto, podemos computar a subchave $i+1$ a partir da subchave $i$.
+
+As equações anteriores podem ser reescritas
+(passando o segundo termo para o outro lado da equação)
+como
+\begin{align*}
+    d_i &= d_{i+1} \xor c_{i+1} \\
+    c_i &= d_{i+1} \xor b_{i+1} \\
+    b_i &= b_{i+1} \xor a_{i+1} \\
+    a_i &= a_{i+1} \xor T(d_i)
+\end{align*}
+Isso mostra como calcular a subchave $i$ a partir da subchave $i+1$.
+Os três primeiros valores ($d_i$, $c_i$ e $b_i$)
+podem ser computados diretamente.
+Como já computamos $d_i$, podemos aplicar a transformação $T$
+e obter $a_i$.
+\footnote{
+    Interessante notar que nós computamos $T$ novamente,
+    em vez de inverter $T$,
+    de maneira semelhante ao que acontecia com o DES.
+}
+Repetindo este procedimento várias vezes,
+podemos calcular a chave original a partir de qualquer subchave.
+
+Estes algoritmos estão implementados no arquivo \verb"aes/subkeys.cpp".
 
 \end{document}
