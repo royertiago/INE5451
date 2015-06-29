@@ -48,6 +48,8 @@ void process_integral() {
             sum = sum ^ aes::s_box_inv[integral[t][i][j].data ^ k];
         votes[i][j][k] += (sum == 0);
     }
+
+    processed_integrals++;
 }
 
 bool test_key( aes::matrix candidate ) {
@@ -142,7 +144,6 @@ int main() {
         i++;
         if( i == 256 ) {
             process_integral();
-            processed_integrals++;
             i = 0;
         }
     }
