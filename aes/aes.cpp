@@ -11,7 +11,7 @@ namespace {
      */
     matrix aes_aux(
         const matrix & data,
-        const std::vector<matrix> keys,
+        const std::vector<matrix> & keys,
         int rounds,
         matrix (*ARK)( const matrix &, const matrix & ),
         matrix (*SB)( const matrix & ),
