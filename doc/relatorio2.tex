@@ -75,30 +75,7 @@ A segunda clase,
 representa as chaves, subchaves, dados a serem cifrados
 e algumas operações lineares.
 
-\subsection{Extração e reconstrução de subchaves}
-
-Visando simplificar o algoritmo,
-separamos em funções as operações do AES.
-A extração de subchaves a partir de uma chave
-e reconstituição da chahve original a partir de uma subchave
-ficaram no arquivo \verb"aes/subkeys.h".
-
-\begin{cppcode}
-    namespace aes {
-        std::vector<matrix> subkeys( matrix key, int rounds );
-        matrix superkey( const matrix & subkey, int round );
-    }
-\end{cppcode}
-
-A função \verb"subkeys" constrói um vetor de \verb"rounds+1" subchaves
-a partir da chave dada;
-O elemento de índice $0$ do vetor de subchaves é a própria chave inicial,
-e o elemento no índice $i$ é a subchave usada pela operação \emph{AddRoundKey}
-na rodada $i$ do AES.
-(Adicionamos o parâmetro \verb"rounds" para facilitar a alternância
-entre o AES com 4 rodadas e o AES com 10.)
-A função \verb"superkey" reconstrói a chave original,
-assumindo que a chave dada veio da rodada \verb"round".
+\subsection{Reconstrução de subchaves}
 
 Embora a norma do AES defina a geração de subchaves em termos de
 uma lista de vetores-coluna%
@@ -159,126 +136,22 @@ e obter $a_i$.
 Repetindo este procedimento várias vezes,
 podemos calcular a chave original a partir de qualquer subchave.
 
-Estes algoritmos estão implementados no arquivo \verb"aes/subkeys.cpp".
-
-\subsection{Etapas intermediárias do algoritmo}
-
-As etapas \emph{AddRoundKey}, \emph{SubBytes}, \emph{ShiftRow} e \emph{MixColumn}
-foram implementadas cada uma numa função separada.
-As interfaces estão no arquivo \verb"aes/primitives.h".
-
+A interface para o algoritmo de reconstrução de chaves fica, simplesmente,
 \begin{cppcode}
-    namespace aes {
-        matrix addroundkey( const matrix & data, const matrix & key );
-        matrix addroundkey_inv( const matrix & data, const matrix & key );
-        matrix subbytes( const matrix & );
-        matrix subbytes_inv( const matrix & );
-        matrix shiftrow( const matrix & );
-        matrix shiftrow_inv( const matrix & );
-        matrix mixcolumn( const matrix & );
-        matrix mixcolumn_inv( const matrix & );
-    }
+    matrix superkey( const matrix & subkey, int round );
 \end{cppcode}
-
-Cada função \verb"_inv" correspondente é a inversa da função original,
-exceto \verb"addroundkey_inv".
-A inversa da \emph{AddRoundKey} foi definida
-de forma a comutar com \emph{MixColumn}.
-Isto é,
-\begin{equation}
-    IARK( IMC(d), k ) = IMC( ARK(d, k) ),
-    \label{iark-imc}
-\end{equation}
-para o dado $d$ e a chave $k$.
-Esta alteração foi feita visando implementar tanto o algoritmo de encriptação
-quanto o de decriptação com o mesmo formato.
-
-Para satisfazer a equação anterior, note que
-\begin{equation*}
-    ARK( d, k ) = d \xor k.
-\end{equation*}
-Agora, $IMC$ é uma operação linear; portanto,
-\begin{equation*}
-    IMC( ARK(d, k) ) = IMC( d \xor k ) = IMC(d) \xor IMC(k)
-\end{equation*}
-Portanto, basta definir
-\begin{equation*}
-    IARK( d', k ) = d' \xor IMC(k)
-\end{equation*}
-para que a equação~\ref{iark-imc} seja satisfeita.
-
-\subsection{Os algoritmos de encriptação e decriptação}
-
-A interface para o algoritmo AES está disponível no arquivo \verb"aes/aes.h".
-\begin{cppcode}
-    namespace aes {
-        matrix aes( const matrix & data, const matrix & key, int rounds = 10 );
-        matrix aes_inv( const matrix & data, const matrix & key, int rounds = 10 );
-    }
-\end{cppcode}
-
-Separamos \verb"aes" e \verb"aes_inv" para simplificar a interface.
-
-Conforme discutido em aula, o algoritmo de encriptação e o de decriptação do AES
-são, estruturalmente, idênticos;
-o único detalhe que deve ser levado em consideração
-é que devemos alterar o tipo de operação
---- isto é, usar \verb"mixcolumn_inv" em vez de \verb"mixcolumn".
-
-Pensando nisso,
-implementamos uma função genérica \verb"aes_aux",
-que é configurável, através de ponteiros para funções,
-para ser tanto o \verb"aes" quanto o \verb"aes_inv".
-
-\begin{cppcode}
-    matrix aes_aux(
-        const matrix & data,
-        const std::vector<matrix> & keys,
-        int rounds,
-        matrix (*ARK)( const matrix &, const matrix & ),
-        matrix (*SB)( const matrix & ),
-        matrix (*SR)( const matrix & ),
-        matrix (*MC)( const matrix & )
-    )
-    {
-        matrix r = aes::addroundkey(data, keys[0]); // $\label{linha1}$
-        for( int i = 1; i < rounds; i++ ) {
-            r = SB( r );
-            r = SR( r );
-            r = MC( r );
-            r = ARK( r, keys[i] );
-        }
-        r = SB( r );
-        r = SR( r );
-        r = aes::addroundkey( r, keys[rounds] ); // $\label{linha2}$
-
-        return r;
-    }
-\end{cppcode}
-
-As funções \verb"aes" e \verb"aes_inv" essencialmente chamam \verb"aes_aux"
-com as operações primitivas adequadas.
-
-Um detalhe que deve ser mencionado é o fato de usarmos, diretamente,
-\verb"aes::addroundkey" nas linhas \ref{linha1} e~\ref{linha2}.
-A variável \verb"ARK" é usada,
-por \verb"aes" e \verb"aes_inv",
-para referir-se a \verb"addroundkey" e a \verb"addroundkey_inv",
-respectivamente.
-Mas \verb"addroundkey_inv" não é o inverso de \verb"addroundkey";
-ela foi alterada para satisfazer à equação \ref{iark-imc}.
-Isso garante a corretude do laço interno no algoritmo de decriptação.
-
-Mas, como não há o \emph{MixColumn} na última rodada
-nem antes da primeira,
-o \emph{AddRoundKey} das linhas \ref{linha1} e~\ref{linha2}
-precisam ser a função \verb"aes::addroundkey",
-mesmo no algoritmo de decriptação.
-Por isso, não usamos a variável \verb"ARK" nestas linhas.
-
-Estas funções estão implementadas em \verb"aes/aes.cpp".
+Esta função está implementada em \verb"aes/subkeys.cpp".
 
 \subsection{Geração de integrais}
+
+Implementamos o algoritmo AES por completo, incluindo encriptação e decriptação.
+No arquivo \verb"aes/aes.h", disponibilizamos uma interface para o algoritmo;
+em essência, é
+\begin{cppcode}
+    matrix aes( const matrix & data, const matrix & key, int rounds = 10 );
+    matrix aes_inv( const matrix & data, const matrix & key, int rounds = 10 );
+\end{cppcode}
+(O código destas funções está implementado em \verb"aes/aes.cpp".)
 
 De posse destas funções,
 ficou muito simples implementar o programa \verb"generate_aes_integrals".
