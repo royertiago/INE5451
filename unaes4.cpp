@@ -83,7 +83,6 @@ bool process_votes() {
 
     for( int i = 0; i < 4; i++ )
     for( int j = 0; j < 4; j++ ) {
-        bool has_candidate = false;
         for( int k = 0; k < 256; k++ )
             if( votes[i][j][k] == processed_integrals )
                 voted[i][j].push_back( aes::polynomial(k) );
