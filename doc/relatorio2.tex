@@ -9,8 +9,8 @@
 \usepackage{tikz}
 
 \usepackage{minted}
-\newminted{cpp}{gobble=4, linenos, mathescape}
-\newcommand{\xor}{\otimes}
+\newminted{cpp}{gobble=4}
+\newcommand{\xor}{\oplus}
 
 \newcommand{\colvec}[1]{
     \tikz[baseline=-3pt]{
@@ -165,5 +165,233 @@ A chave para ambas as é \verb"CS\subseteq MATH".
 O arquivo de entrada fornecido ao programa está disponível em
 \verb"doc/integrals.in";
 a saída resultante está disponível em \verb"doc/integrals.out".
+
+\subsection{Implementação do ataque}
+
+De acordo com o que foi discutido em aula,
+a integral chega na última rodada com todas as posições balanceadas,
+mas não necessariamente saturadas.
+\begin{equation*}
+    \text{Elemento}_i =
+    \begin{bmatrix}
+        a^i_{00} & a^i_{01} & a^i_{02} & a^i_{03} \\
+        a^i_{10} & a^i_{11} & a^i_{12} & a^i_{13} \\
+        a^i_{20} & a^i_{21} & a^i_{22} & a^i_{23} \\
+        a^i_{30} & a^i_{31} & a^i_{32} & a^i_{33} \\
+    \end{bmatrix}
+\end{equation*}
+A última rodada contém as operações \emph{SubBytes},
+\emph{ShiftRow} e \emph{AddRoundKey}.
+Conforme observado em aula, \emph{SubBytes} e \emph{ShiftRow} comutam;
+portanto, podemos considerar que a última rodada é
+\begin{equation*}
+    SR \to SB \to ARK.
+\end{equation*}
+Como $SR$ apenas altera a posição das entradas da matriz,
+o balanceamento de todas as posições da integral é preservado
+após passarmos-na por $SR$.
+Portanto, efetivamente,
+podemos nos preocupar apenas com as operações
+\begin{equation*}
+    SB \to ARK.
+\end{equation*}
+Como ambas as operações trabalham byte-a-byte,
+podemos fazer força-bruta em cada byte da 4ª subchave separadamente,
+em vez de atacar todos os 128 bits de uma vez só.
+
+Se um certo byte $k$ for, de fato,
+o byte da subchave na posição $ij$,
+então
+\begin{equation}
+    \label{balanceamento}
+    \bigoplus_{0 \leq t \leq 255} \verb"s_box_inv["k \xor a^t_{ij}\verb"]" = 0,
+\end{equation}
+em que \verb"s_box_inv" é o inverso da caixa-S.
+Se $k$ não for o byte certo, ainda pode ser que a equação valha.
+Como o valor do $\xor$atório é mais ou menos aleatório,
+podemos esperar que um byte errado passe no teste
+com probabilidade $2^{-8}$.
+Faremos esta hipótese
+(de que o $\xor$atório é aleatório para um byte errado)
+no restante do texto.
+
+O código está disponível no arquivo \verb"unaes4.cpp".
+Ele começa com
+\begin{cppcode}
+    aes::matrix integral[256];
+    int votes[4][4][256] = {0};
+    int processed_integrals;
+\end{cppcode}
+
+\verb"integral" é a lista dos textos cifrados que pertencem à integral.
+\verb"votes[i][j][k]" é a quantidade de integrais
+em que o byte $k$ satisfez a equação~\ref{balanceamento}
+para a posição $ij$.
+
+Para cada integral que o \verb"main" lê,
+a função \verb"process_integrals" é chamada uma vez.
+Esta função popula o vetor \verb"votes";
+em essência, para cada posição $ij$ e cada byte $k$,
+a função testa se a equação~\ref{balanceamento} é válida para a integral atual.
+\begin{cppcode}
+    void process_integral() {
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ )
+        for( int k = 0; k < 256; k++ ) { // [k]ey candidate
+            unsigned sum = 0;
+            for( int t = 0; t < 256; t++ )
+                sum = sum ^ aes::s_box_inv[integral[t][i][j].data ^ k];
+            votes[i][j][k] += (sum == 0);
+        }
+        processed_integrals++;
+    }
+\end{cppcode}
+\verb"integral[t][i][j].data" é a representação,
+em \verb"unsigned char",
+do byte $a^t_{ij}$.
+
+Após processarmos todas as integrais,
+se $k$ é o verdadeiro bit de chave,
+então
+\begin{equation}
+    \label{votos-suficientes}
+    \verb"votes[i][j][k] == processed_integrals".
+\end{equation}
+Com duas integrais,
+a probabilidade de um byte errado satisfazer esta equação
+é $2^{-16}$.
+Cada um dos 255 outros bytes representa uma ``tentativa''
+de satisfazer à equação sem ser o byte certo;
+portanto,
+a chance de um byte específico não ser unicamente determinado
+após duas integrais é
+\begin{equation*}
+    1 - (1 - 2^{-16})^{255} \approx 0.00388
+\end{equation*}
+Como são $16$ posições possíveis na matriz,
+existem, de fato, $16*255$ diferentes oportunidades
+para que a equação~\ref{balanceamento} seja satisfeita com o byte errado.
+Portanto,
+a chance de que algum dos bytes tenha duas respostas
+(uma vindo do byte certo e outra conseguida ao acaso)
+é de
+\begin{equation*}
+    1 - (1 - 2^{-16})^{16*255} \approx 0.06036 \approx 6\%,
+\end{equation*}
+que é uma probabilidade consideravelmente alta
+--- não é nada ``esmagadora'', ao contrário do que o Barreto diz%
+\footnote{
+    Concluímos que ou o está errado o Barreto
+    ou está errada nossa hipótese de que
+    um byte aleatório tem chance $2^{-8}$ de passar no teste.
+    Sinceramente, eu (Tiago Royer) confio mais no Barreto...
+}.
+De fato, os exemplos que usamos deixam escapar um byte.
+
+Para garantir corretude do algoritmo,
+precisamos, então, testar todas as combinações possíveis de chave geradas.
+Isto é tarefa da função \verb"process_votes".
+O começo desta função é%
+\footnote{
+    O código desta função está um pouco diferente no arquivo \texttt{unaes4.cpp}
+    pois lá levamos em conta algum tratamento de erros,
+    para propósitos de depuração.
+}
+\begin{cppcode}
+    void process_votes() {
+        std::vector<aes::polynomial> voted[4][4];
+        int brute_force_key_space = 1;
+\end{cppcode}
+\verb"voted[i][j]" conterá uma lista de todos os bytes $k$
+que passaram em todos os teste na posição $ij$;
+isto é, os que satisfizerem a equação~\ref{votos-suficientes}.
+\verb"brute_force_key_space" é apenas por curiosidade:
+esta variável guardará a quantidade de combinações possíveis para a 4ª subchave.
+
+A etapa seguinte é popular os vetores \verb"voted[i][j]".
+\begin{cppcode}
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ ) {
+            for( int k = 0; k < 256; k++ )
+                if( votes[i][j][k] == processed_integrals )
+                    voted[i][j].push_back( aes::polynomial(k) );
+
+            brute_force_key_space *= voted[i][j].size();
+        }
+\end{cppcode}
+Este trecho de código evidencia que o espaço de chaves
+cresce exponencialmente a cada byte não unicamente determinado.
+
+Por último, temos que gerar e testar todas as combinações de chaves.
+Para isso, usamos uma matriz de índices.
+\begin{cppcode}
+        std::vector<aes::polynomial>::iterator index[4][4];
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ ) {
+            index[i][j] = voted[i][j].begin();
+        }
+\end{cppcode}
+\verb"*index[i][j]" é o valor do byte $ij$ para a chave atual.
+
+O restante do código meramente itera sobre o espaço de chaves.
+\begin{cppcode}
+    for( int k = 0; k < brute_force_key_space; k++ ) {
+        aes::matrix key_candidate;
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ )
+            key_candidate[i][j] = *index[i][j];
+
+        if( test_key(aes::superkey(key_candidate, 4)) ) {
+            std::cout << aes::superkey(key_candidate, 4) << std::endl;
+            return;
+        }
+
+        for( int i = 0; i < 4; i++ )
+        for( int j = 0; j < 4; j++ ) {
+            ++index[i][j];
+            if( index[i][j] == voted[i][j].end() )
+                index[i][j] = voted[i][j].begin();
+            else
+                goto end_index_advancing_loop;
+        }
+        end_index_advancing_loop:;
+    }
+\end{cppcode}
+
+A função \verb"test_key" testa se a chave passada
+corretamente decifra os valores da integral.
+Como em nosso formato de entrada nós não disponibilizamos o texto claro,
+esta função executa o algoritmo de decriptação do AES
+em dois valores diferentes da integral.
+Caso o resultado difira em, exatamente, uma posição,
+consideramos aquela chave válida.
+
+Observe que este trecho do código que testa todas as combinações possíveis
+faz com que, teoricamente,
+apenas uma integral seja suficiente para que o programa quebre a chave.
+
+Para cada byte da chave,
+existem $255$ ``tentativas'' de passar um valor errado no teste.
+Podemos interpretar isso como $255$ ensaios de Bernoulli,
+com probabilidade de sucesso de $2^{-8}$ cada.
+A quantidade esperada de ``sucessos'' em passar um valor errado
+é $255*2^{-8}$;
+portanto, podemos esperar $1 + 255/256$
+diferentes candidatos para cada byte da chave.
+
+A quantidade de possíveis subchaves
+é o produto das quantidades de candidatos a bytes da subchave;
+como existem $16$ bytes independentes,
+a quantidade de candidatos subchaves que são filtrados com uma única integral é
+\begin{equation*}
+    \left(1 + \frac{255}{256}\right) ^{16} \approx 63517.728 \approx 2^{16}.
+\end{equation*}
+Portanto, precisamos executar,
+em média, $2^{16}$ decifragens para encontrar a chave certa
+usando apenas uma integral.
+
+A título de curiosidade, usar apenas a segunda integral gerada
+exige busca sobre $12\,288$ chaves,
+enquanto que usar apenas a primeira exige $248\,832$ tentativas.
 
 \end{document}
