@@ -1,7 +1,7 @@
 /* This program generates integrals for the Integral Attack for AES.
  *
  * Input format:
- *  <32 hexadecimal digits representing the constants of the integral constants>
+ *  <32 hexadecimal digits representing the integral constants>
  *  <32 hexadecimal digits representing the key>
  *  <index of the saturated byte>
  *  <number of rounds>
