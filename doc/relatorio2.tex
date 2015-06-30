@@ -322,53 +322,16 @@ A etapa seguinte é popular os vetores \verb"voted[i][j]".
 Este trecho de código evidencia que o espaço de chaves
 cresce exponencialmente a cada byte não unicamente determinado.
 
-Por último, temos que gerar e testar todas as combinações de chaves.
-Para isso, usamos uma matriz de índices.
-\begin{cppcode}
-        std::vector<aes::polynomial>::iterator index[4][4];
-        for( int i = 0; i < 4; i++ )
-        for( int j = 0; j < 4; j++ ) {
-            index[i][j] = voted[i][j].begin();
-        }
-\end{cppcode}
-\verb"*index[i][j]" é o valor do byte $ij$ para a chave atual.
+O restante do código não é muito interessante;
+ele apenas gera e testa todas as possíveis subchaves,
+baseado na matriz \verb"voted" gerada anteriormente.
 
-O restante do código meramente itera sobre o espaço de chaves.
-\begin{cppcode}
-    for( int k = 0; k < brute_force_key_space; k++ ) {
-        aes::matrix key_candidate;
-        for( int i = 0; i < 4; i++ )
-        for( int j = 0; j < 4; j++ )
-            key_candidate[i][j] = *index[i][j];
-
-        if( test_key(aes::superkey(key_candidate, 4)) ) {
-            std::cout << aes::superkey(key_candidate, 4) << std::endl;
-            return;
-        }
-
-        for( int i = 0; i < 4; i++ )
-        for( int j = 0; j < 4; j++ ) {
-            ++index[i][j];
-            if( index[i][j] == voted[i][j].end() )
-                index[i][j] = voted[i][j].begin();
-            else
-                goto end_index_advancing_loop;
-        }
-        end_index_advancing_loop:;
-    }
-\end{cppcode}
-
-A função \verb"test_key" testa se a chave passada
-corretamente decifra os valores da integral.
 Como em nosso formato de entrada nós não disponibilizamos o texto claro,
-esta função executa o algoritmo de decriptação do AES
-em dois valores diferentes da integral.
+precisamos de um pequeno ``malabarismo'' para testar se uma subchave está certa:
+nós executam o algoritmo de decriptação do AES
+em dois elementos diferentes da integral.
 Caso o resultado difira em, exatamente, uma posição,
 consideramos aquela chave válida.
-
-Observe que este trecho do código que testa todas as combinações possíveis
-faz com que, teoricamente,
-apenas uma integral seja suficiente para que o programa quebre a chave.
 
 Para cada byte da chave,
 existem $255$ ``tentativas'' de passar um valor errado no teste.
