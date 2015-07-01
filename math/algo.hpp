@@ -29,12 +29,36 @@ namespace math {
         T gcd; // The greatest common divisor
     };
 
+    /* Helper to the euclidean algorithm.
+     * In the non-tail recursive function,
+     * we called recursively extended_euclid to get {x, y, gdc},
+     * and returned {y, x - (a/b)*y, gcd}.
+     * That is, we applied the linear transformation
+     * T(x, y) = (y, x - (a/b)*y) to the pair (x, y).
+     *
+     * Thinking recursively, the caller of the current function
+     * will also apply its own linear transformation,
+     * and its caller also, and so on.
+     *
+     * Since a linear transformation may be represented as a matrix,
+     * each level, in fact, simply multiplies the result of the next level
+     * (the "deeper" level) by its own matrix.
+     *
+     * So, to implement it tail-recursively,
+     * we pass the product of all the previous levels to the next.
+     * The argumens xx, xy, yx and yy are simply the entries of this matrix.
+     */
+    template< typename T >
+    euclid_data<T> euclid_helper( T a, T b, T xx, T xy, T yx, T yy ) {
+        if( b == 0 )
+            return {xx, yx, a};
+        else
+            return euclid_helper( b, a%b, xy, xx - xy*(a/b), yy, yx - yy*(a/b) );
+    }
+
     template< typename T >
     euclid_data<T> extended_euclid( const T& a, const T& b ) {
-        if( b == T(0) )
-            return {1, 0, a};
-        euclid_data<T> data = extended_euclid( b, a % b );
-        return {data.y, data.x - T(a/b) * data.y, data.gcd};
+        return euclid_helper( a, b, 1, 0, 0, 1 );
     }
 }
 
