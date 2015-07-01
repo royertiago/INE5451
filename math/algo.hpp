@@ -20,6 +20,22 @@ namespace math {
         return r;
     }
 
+    /* Specialized version of math::pow for when the monoid is
+     * the integers modulo n.
+     */
+    template< typename T >
+    T pow_mod( T t, unsigned i, T n ) {
+        t = t % n;
+        T r(1);
+        while( i != 0 ) {
+            if( i % 2 == 1 )
+                r = r * t % n;
+            t = t * t % n;
+            i >>= 1;
+        }
+        return r;
+    }
+
     /* Data for the Extended Euclid's algorithm.
      */
     template< typename T >
