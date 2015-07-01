@@ -47,6 +47,15 @@ namespace math {
         }
         return {xx, yx, a};
     }
+
+    /* Computes the inverse of a modulo n.
+     * This algorithm assumes gcd(a, n) == 1.
+     */
+    template< typename T >
+    T modular_inverse( T a, T n ) {
+        auto d = extended_euclid( a, n );
+        return (d.x + n) % n;
+    }
 }
 
 #endif // MATH_ALGO_HPP

@@ -38,3 +38,8 @@ TEST_CASE( "Extended Euclid", "[math]" ) {
     test_extended_euclid( 0, 5, 5 );
     test_extended_euclid( 5, 0, 5 );
 }
+
+TEST_CASE( "Modular inverse", "[math]" ) {
+    CHECK( math::modular_inverse( 2, 5 ) == 3 );
+    CHECK( math::modular_inverse( 18, 19 ) == 18 );
+}
