@@ -4,6 +4,9 @@
 /* Templated mathematical algorithms.
  */
 
+#include <utility> // std::pair
+#include <vector>
+
 namespace math {
     /* Computes t^i, T is a member of a monoid.
      * We assume T(1) is the identity of that monoid,
@@ -73,6 +76,25 @@ namespace math {
     T modular_inverse( T a, T n ) {
         auto d = extended_euclid( a, n );
         return (d.x + n) % n;
+    }
+
+    /* Computes x such that
+     * x = a_i mod n_i
+     * for 0 <= i < v.size(),
+     * where v = { (a_0, n_0), ..., (a_{s-1}, n_{s-1}) }.
+     */
+    template< typename T >
+    T chinese_remainder_theorem( const std::vector< std::pair<T, T> > & v ) {
+        T m(1);
+        for( const auto & pair : v )
+            m = m * pair.second;
+
+        T x(0);
+        for( const auto & pair : v ) {
+            T mi(m / pair.second);
+            x = (x + pair.first * mi * modular_inverse(mi, pair.second) ) % m;
+        }
+        return x;
     }
 }
 

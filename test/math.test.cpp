@@ -47,3 +47,8 @@ TEST_CASE( "Modular inverse", "[math]" ) {
     CHECK( math::modular_inverse( 2, 5 ) == 3 );
     CHECK( math::modular_inverse( 18, 19 ) == 18 );
 }
+
+TEST_CASE( "Chinese Remainder Theorem" ) {
+    std::vector< std::pair<int, int> > crt_data{{2, 3}, {3, 4}, {1, 5}};
+    CHECK( math::chinese_remainder_theorem(crt_data) == 11 );
+}
