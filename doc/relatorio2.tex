@@ -357,4 +357,27 @@ A título de curiosidade, usar apenas a segunda integral gerada
 exige busca sobre $12\,288$ chaves,
 enquanto que usar apenas a primeira exige $248\,832$ tentativas.
 
+
+\section{Questão 3 --- RSA}
+
+Como os dois principais algoritmos
+(quadrado-e-multiplica e Euclides extendido)
+são simples de implementar
+(e o pseudo-código para eles está disponível nas notas de aula),
+não há muito o que discutir neste exercício.
+
+Esta questão consistia em quebrar o RSA
+a partir da chave pública.
+Como a chave era admitidamente pequena ($n = 18923$),
+nos sentimos autorizados a fatorar o $n$ usando o comando \verb"factor" do UNIX.
+Obtemos assim $p = 127$ e $q = 149$.
+
+Nossa implementação do RSA (disponível no arquivo \verb"rsa/rsa.hpp")
+faz o resto de posse de $p$, $q$ e $b$.
+Computamos $\phi(n) = 18648$ e $a = 5797$;
+e o decodificador está implementado em \verb"micro_rsa.cpp".
+O shell script \verb"micro_rsa_run.sh"
+executa o decodificador com os parâmetros $p$, $q$ e $b$,
+e imprime o texto em claro correspondente.
+
 \end{document}
