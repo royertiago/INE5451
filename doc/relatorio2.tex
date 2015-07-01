@@ -380,4 +380,20 @@ O shell script \verb"micro_rsa_run.sh"
 executa o decodificador com os parâmetros $p$, $q$ e $b$,
 e imprime o texto em claro correspondente.
 
+\section{Questões eletivas}
+
+Escolhemos as questões sobre logaritmo discreto
+pois eram as únicas que exigiam implementação.
+
+\subsection{Questão 7 --- Algoritmo de Shanks}
+
+Esta questão exigia a implementação do algoritmo de Shanks para calcular o log discreto.
+A implementação está disponível no arquivo \verb"shanks.cpp".
+Fizemos no formato de uma questão da maratona;
+o programa lê diversos casos de teste (delimitado por fim de arquivo)
+contendo $a$, $b$ e $n$,
+e imprime, para cada caso de teste, $\log_a b (\mod n)$.
+
+Como teste, nos foi pedido para calcular $\log_6 248388 (\mod 458009) = 232836$.
+
 \end{document}
