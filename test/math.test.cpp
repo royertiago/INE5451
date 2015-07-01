@@ -10,6 +10,7 @@ TEST_CASE( "Square and Multiply algorithm", "[math]" ) {
 
     CHECK( math::pow_mod(1, 50, 1) == 0 );
     CHECK( math::pow_mod(9726, 3533, 11413) == 5761 );
+    CHECK( math::pow_mod<long long unsigned>(6, 677, 458009) == 186889 );
 }
 
 void test_extended_euclid( int a, int b, int m ) {
