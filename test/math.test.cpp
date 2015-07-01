@@ -9,8 +9,9 @@ TEST_CASE( "Square and Multiply algorithm", "[math]" ) {
     CHECK( math::pow(7, 0) == 1 );
 }
 
-void test_extended_euclid( int a, int b ) {
+void test_extended_euclid( int a, int b, int m ) {
     math::euclid_data<int> data = math::extended_euclid( a, b );
+    CHECK( data.gcd == m );
     int xabs = data.x > 0 ? data.x : -data.x;
     int yabs = data.y > 0 ? data.y : -data.y;
     for( int x = -xabs + 1; x < xabs; x++ )
@@ -30,10 +31,10 @@ void test_extended_euclid( int a, int b ) {
 TEST_CASE( "Extended Euclid", "[math]" ) {
     math::euclid_data<int> data;
 
-    test_extended_euclid( 3, 5 );
-    test_extended_euclid( 5, 3 );
-    test_extended_euclid( 32, 24 );
-    test_extended_euclid( 24, 32 );
-    test_extended_euclid( 0, 5 );
-    test_extended_euclid( 5, 0 );
+    test_extended_euclid( 3, 5, 1 );
+    test_extended_euclid( 5, 3, 1 );
+    test_extended_euclid( 32, 24, 8 );
+    test_extended_euclid( 24, 32, 8 );
+    test_extended_euclid( 0, 5, 5 );
+    test_extended_euclid( 5, 0, 5 );
 }
