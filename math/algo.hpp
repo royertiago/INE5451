@@ -33,17 +33,16 @@ namespace math {
     euclid_data<T> extended_euclid( T a, T b ) {
         T xx = T(1), xy = T(0), yx = T(0), yy = T(1);
         while( b != 0 ) {
-            T nxx = xy;
             T nxy = xx - xy*(a/b);
-            T nyx = yy;
-            T nyy = yx - yy*(a/b);
-            T na = b;
-            T nb = a % b;
-            xx = nxx;
+            xx = xy;
             xy = nxy;
-            yx = nyx;
+
+            T nyy = yx - yy*(a/b);
+            yx = yy;
             yy = nyy;
-            a = na;
+
+            T nb = a % b;
+            a = b;
             b = nb;
         }
         return {xx, yx, a};
