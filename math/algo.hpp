@@ -6,10 +6,12 @@
 
 namespace math {
     /* Computes t^i, T is a member of a monoid.
-     * We assume T(1) is the identity of that monoid.
+     * We assume T(1) is the identity of that monoid,
+     * and that U is an integer type in which
+     * U % 2 and U >>= 1 are fast operations.
      */
-    template< typename T >
-    T pow( T t, unsigned i ) {
+    template< typename T, typename U >
+    T pow( T t, U i ) {
         T r(1);
         while( i != 0 ) {
             if( i % 2 == 1 )
@@ -23,8 +25,8 @@ namespace math {
     /* Specialized version of math::pow for when the monoid is
      * the integers modulo n.
      */
-    template< typename T >
-    T pow_mod( T t, unsigned i, T n ) {
+    template< typename T, typename U >
+    T pow_mod( T t, U i, T n ) {
         t = t % n;
         T r(1);
         while( i != 0 ) {
