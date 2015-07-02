@@ -5,7 +5,7 @@
 \usepackage{amssymb}
 \usepackage{amsthm}
 \newtheorem{theorem}{Teorema}
-
+\usepackage{booktabs}
 \usepackage{tikz}
 
 \usepackage{minted}
@@ -52,6 +52,48 @@ Escolhemos fazer as últimas três questões, relacionadas ao log discreto.
 
 Novamente, fizemos todos os programas em C++.
 Nosso código está disponível em \texttt{https://github.com/royertiago/INE5451}.
+
+\section{Questão 1 --- Ataque Linear a uma Rede de Substituição-Permutação}
+
+Esta questão pedia que implementássemos um ataque linar a uma SPN,
+usando a seguinte caixa-S:
+
+\begin{tabular}{l l *{16}c}
+    \toprule
+    $z$ & \quad & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & A & B & C & D & E & F \\
+    \midrule
+    $\pi_s(z)$ && 8 & 4 & 2 & 1 & C & 6 & 3 & D & A & 5 & E & 7 & F & B & 9 & 0 \\
+    \bottomrule
+\end{tabular}
+
+\subsection{a) Radiografia linear da caixa S}
+
+Implementamos um analisador genérico de caixas S em \verb"linear_radiography.cpp".
+Este analisador foi utilizado para gerar a seguinte ``radiografia linear''
+da caixa S analisada.
+
+\begin{tabular}{l | *{16}c}
+  &  0 &  1 &  2 &  3 &  4 &  5 &  6 &  7 &  8 &  9 & 10 & 11 & 12 & 13 & 14 & 15 \\
+\hline
+0 & 16 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 &  8 \\
+1 &  8 & 10 &  6 &  8 & 10 &  8 &  8 &  6 &  4 &  6 &  6 &  8 & 10 &  8 &  4 & 10 \\
+2 &  8 & 10 &  8 & 10 &  6 &  8 &  6 &  8 &  6 &  8 & 10 &  4 &  4 &  6 &  8 & 10 \\
+3 &  8 &  8 & 10 & 10 &  8 & 12 & 10 &  6 &  6 &  6 &  8 &  8 & 10 &  6 & 12 &  8 \\
+4 &  8 & 10 &  8 &  6 &  8 & 10 &  8 &  6 & 10 &  4 & 10 &  8 &  6 &  8 &  6 &  4 \\
+5 &  8 & 12 &  6 &  6 & 10 & 10 &  8 & 12 &  6 & 10 &  8 &  8 &  8 &  8 & 10 &  6 \\
+6 &  8 &  8 & 12 &  8 & 10 & 10 &  6 & 10 &  8 &  8 &  8 & 12 &  6 &  6 &  6 & 10 \\
+7 &  8 &  6 &  6 &  8 & 12 &  6 & 10 &  8 &  8 &  6 &  6 &  8 &  4 &  6 & 10 &  8 \\
+8 &  8 & 10 & 10 &  8 &  8 &  6 &  6 &  8 & 10 &  8 &  4 &  6 & 10 &  4 &  8 &  6 \\
+9 &  8 &  8 &  8 & 12 & 10 & 10 &  6 & 10 & 10 &  6 &  6 &  6 &  8 & 12 &  8 &  8 \\
+10 & 8 & 12 & 10 & 10 &  6 &  6 & 12 &  8 &  8 &  8 &  6 & 10 &  6 & 10 &  8 &  8 \\
+11 & 8 &  6 & 12 &  6 &  8 &  6 &  8 & 10 &  4 &  6 &  8 &  6 &  8 & 10 &  8 &  6 \\
+12 & 8 &  8 & 10 & 10 & 12 &  8 & 10 &  6 &  8 & 12 & 10 &  6 &  8 &  8 &  6 &  6 \\
+13 & 8 &  6 &  8 &  6 &  6 & 12 & 10 &  8 &  8 & 10 &  4 &  6 &  6 &  8 &  6 &  8 \\
+14 & 8 &  6 &  6 & 12 &  6 &  8 &  8 & 10 &  6 &  8 &  8 & 10 &  8 &  6 &  6 &  4 \\
+15 & 8 &  8 &  8 &  8 &  8 &  8 & 12 & 12 & 10 &  6 & 10 &  6 & 10 &  6 &  6 & 10 \\
+\end{tabular}
+
+
 
 \section{Questão 2 --- Ataque quadrado ao AES}
 
