@@ -389,11 +389,23 @@ pois eram as únicas que exigiam implementação.
 
 Esta questão exigia a implementação do algoritmo de Shanks para calcular o log discreto.
 A implementação está disponível no arquivo \verb"shanks.cpp".
-Fizemos no formato de uma questão da maratona;
+Fizemos no formato de uma questão da Maratona de programação;
 o programa lê diversos casos de teste (delimitado por fim de arquivo)
 contendo $a$, $b$ e $n$,
 e imprime, para cada caso de teste, $\log_a b (\mod n)$.
 
 Como teste, nos foi pedido para calcular $\log_6 248388 (\mod 458009) = 232836$.
+
+\subsection{Questão 8 --- Algoritmo de Pohlig-Hellman}
+
+Novamente seguimos o formato da Maratona.
+A implementação está em \verb"pohlig_hellman.cpp".
+
+Além do RSA, este era o único exercício que exigia fatoração de números;
+por isso, nos implementamos um algoritmo de fatoração bastante simplificado:
+ele apenas testa todos os primos até $223$ e desiste se não consegue continuar.
+(A fatoração está implementada em \verb"math/factor.cpp")
+
+Como teste, nos foi pedido para calcular $\log_{10} 12611 (\mod 31153) = 17102$.
 
 \end{document}
