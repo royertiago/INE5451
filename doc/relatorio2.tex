@@ -421,4 +421,62 @@ Usando os comandos \verb"bc" e \verb"factor" do Unix, obtemos
     \alpha^{156} &\equiv 2^2*7 \mod{p}
 \end{align*}
 
+\subsubsection{Letra b}
+
+\begin{theorem}
+    Se $\alpha$ é uma raíz primitiva de $\mathbb Z_p^*$,
+    então para qualquer $a$ e $b$ em $\mathbb Z_p^*$ temos
+    \begin{equation*}
+        \log_\alpha ab \equiv \log_\alpha a + \log_\alpha b \mod{p}.
+    \end{equation*}
+\end{theorem}
+\begin{proof}
+    (Abreviaremos $\log_\alpha x \mod{p}$ para simplesmente $\log x$.)
+
+    Sejam $A = \log a$ e $B = \log b$.
+    Como $\alpha$ é uma raíz primitiva de $\mathbb Z_p^*$,
+    sabemos que estes dois elementos existem.
+    Então
+    \begin{align*}
+        \alpha^{A + B} &\equiv \alpha^A*\alpha^B \mod{p} \\
+                       &\equiv \alpha^{\log a}*\alpha^{\log b} \mod{p} \\
+                       &\equiv ab \mod{p}
+    \end{align*}
+
+    Extraíndo $\log$ dos dois lados, obtemos o resultado.
+\end{proof}
+
+De posse deste teorema (e dos resultados da letra $a$),
+conseguimos calcular os logaritmos pedidos rapidamente.
+
+Para $\log_2 7 \mod{p}$:
+\begin{align*}
+    156 &\equiv \log_2(2^2*7) \mod{p} \\
+    156 &\equiv \log_2(2^2) + \log_2 7 \mod{p} \\
+    156 &\equiv 2 \log_2 2 + \log_2 7 \mod{p} \\
+    156 &\equiv 2 * 1 + \log_2 7 \mod{p} \\
+    154 &\equiv \log_2 7 \mod{p}
+\end{align*}
+
+Para $\log_2 11 \mod{p}$:
+\begin{align*}
+    32 &\equiv \log_2 2^4*11 \mod{p} \\
+    32 &\equiv \log_2 2^4 + \log_2 11 \mod{p} \\
+    32 &\equiv 4 + \log_2 11 \mod{p} \\
+    28 &\equiv \log_2 11 \mod{p}
+\end{align*}
+
+Para $\log_2 5 \mod{p}$:
+\begin{align*}
+    40 &\equiv \log_2 2 + \log_2 5 + \log_2 11 \mod{p} \\
+    11 &\equiv \log_2 5 \mod{p}
+\end{align*}
+
+Para $\log_2 3 \mod{p}$:
+\begin{align*}
+    59 &\equiv 2\log_2 2 + \log_2 3 + \log_2 3 \mod{p} \\
+    46 &\equiv \log_2 3 \mod{p}
+\end{align*}
+
+
 \end{document}
