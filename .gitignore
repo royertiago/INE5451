@@ -16,6 +16,7 @@ generate_aes_integral
 linear_radiography
 merge_freq
 micro_rsa
+pohlig_hellman
 shanks
 unaes4
 undes3
