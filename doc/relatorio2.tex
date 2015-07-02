@@ -20,6 +20,7 @@
     }
     % O -3pt, o 1.2 e o -1.2 são admitidamente gambiarrizados.
 }
+\renewcommand{\mod}[1]{ \ (\textrm{mod } #1) }
 
 \title{
     INE5451 - Tópicos Especiais em Algoritmos I \\
@@ -407,5 +408,35 @@ ele apenas testa todos os primos até $223$ e desiste se não consegue continuar
 (A fatoração está implementada em \verb"math/factor.cpp")
 
 Como teste, nos foi pedido para calcular $\log_{10} 12611\ (\mathrm{mod}\ 31153) = 17102$.
+
+\subsection{Questão 9}
+
+\subsubsection{Letra a}
+
+Para $\alpha = 2$ e $p = 227$, temos
+\begin{align*}
+    \alpha^0 &\equiv 1 \mod{p} \\
+    \alpha^1 &\equiv 2 \mod{p} \\
+    \alpha^2 &\equiv 4 \mod{p} \\
+    \alpha^4 &\equiv 16 \mod{p} \\
+    \alpha^8 &\equiv 29 \mod{p} \\
+    \alpha^{16} &\equiv 160 \mod{p} \\
+    \alpha^{32} &\equiv 176 \mod{p} \\
+    \alpha^{64} &\equiv 104 \mod{p} \\
+    \alpha^{128} &\equiv 147 \mod{p}
+\end{align*}
+Portanto,
+\begin{align*}
+    \alpha^{40} &\equiv \alpha^{32 + 8} \equiv 110 \mod{p} \\
+    \alpha^{59} &\equiv \alpha^{32 + 16 + 8 + 2 + 1} \equiv 60 \mod{p} \\
+    \alpha^{156} &\equiv \alpha^{128 + 16 + 8 + 4} \equiv 28 \mod{p}
+\end{align*}
+e assim
+\begin{align*}
+    \alpha^{32} &\equiv 2^4 * 11 \mod{p} \\
+    \alpha^{40} &\equiv 2*5*11 \mod{p} \\
+    \alpha^{59} &\equiv 2^2*3*5 \mod{p} \\
+    \alpha^{156} &\equiv 2^2*7 \mod{p}
+\end{align*}
 
 \end{document}
