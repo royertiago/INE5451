@@ -151,8 +151,29 @@ O restante da análise é análogo ao visto em sala.
 Pelo lema do empilhamento de Matsui,
 a tendência desta variável é
 \begin{equation*}
-    2^2 * \frac 1 4 * \frac 1 4 * \frac 1 4 = \frac 1 {16}.
+    \pm 2^2 * \frac 1 4 * \frac 1 4 * \frac 1 4 = \frac 1 {16}.
 \end{equation*}
+
+\subsection{c) Estrutura do ataque}
+
+Dado um par entrada-saída,
+iremos chutar um valor para os bits $1$, $2$, $3$, $4$, $9$, $10$, $11$ e $12$
+(os quatro abaixo da caixa $S_1^4$ e $S_3^4$),
+obteremos o valor de $\U_1^4$ e $\U_9^4$,
+e calcularemos a variável aleatória $\X_{16} \xor \U_1^4 \xor \U_9^4$.
+
+A ideia é que, para chaves erradas,
+o valor desta variável é ``mais ou menos aleatório'',
+portanto, ela não deve apresentar tendência.
+Mas, para o valor correto para os últimos bits da subchave,
+a variável terá tendência $\pm 1/16$.
+
+Então, basta pegar uma quantidade grande de textos
+(o problema sugere $1000$ a $1500$ textos)
+e, para cada possível óctupla de bits da subchave,
+contar quantas vezes a variável $\X_{16} \xor \U_1^4 \xor \U_9^4$ é $1$.
+Para a óctupla correspondente aos bits reais,
+este valor estará o mais longe possível da metade.
 
 \section{Questão 2 --- Ataque quadrado ao AES}
 
