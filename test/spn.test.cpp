@@ -42,3 +42,12 @@ TEST_CASE( "SPN subkeys", "[spn]" ) {
     CHECK( subkeys[3] == 0b0100'1101'0110'0011 );
     CHECK( subkeys[4] == 0b1101'0110'0011'1111 );
 }
+
+TEST_CASE( "SPN encrypt/decrypt", "[spn]" ) {
+    spn::spn spn( permutation_s );
+    spn::key key = 0b0011'1010'1001'0100'1101'0110'0011'1111;
+    spn::data plain = 0b0010'0110'1011'0111;
+    spn::data cypher = 0b1011'1100'1101'0110;
+    CHECK( spn.encrypt( plain, key ) == cypher );
+    CHECK( spn.decrypt( cypher, key ) == plain );
+}

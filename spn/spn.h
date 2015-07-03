@@ -23,6 +23,8 @@ namespace spn {
         // Applies the inverse of the permutation S.
         data S_inv( data ) const;
 
+        data encrypt( data, key ) const;
+        data decrypt( data, key ) const;
     };
 
     // Applies the "inter-byte" permutation.
