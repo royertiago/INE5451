@@ -16,16 +16,20 @@ int main( int argc, char ** argv ) {
         std::cerr << "Usage: " << argv[0] << " <key> <amount> <seed>\n";
         return 1;
     }
-    spn::key key = std::atoi( argv[1] );
-    int amount = std::atoi( argv[2] );
-    long long unsigned seed = std::atoll( argv[3] );
+    spn::key key = std::strtol( argv[1], 0, 16 );
+    int amount = std::strtol( argv[2], 0, 10 );
+    long long unsigned seed = std::strtol( argv[3], 0, 16 );
 
     spn::spn spn( permutation_s );
     std::mt19937 rng(seed);
 
-    for( int i = 0; i < amount; i++ )
+    for( int i = 0; i < amount; i++ ) {
+        spn::data data = rng() & 0xFFFF;
         std::cout << std::setw(4) << std::setfill('0') << std::hex
-            << spn.encrypt( rng() & 0xFFFF, key ) << std::endl;
+            << data << ' '
+            << std::setw(4) << std::setfill('0') << std::hex
+            << spn.encrypt( data, key ) << std::endl;
+    }
 
     return 0;
 }
