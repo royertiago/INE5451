@@ -19,20 +19,6 @@ int permutation_s_inv[16] = {
 };
 #endif
 
-void sub_keys(std::vector<word> & sub_keys, dword key)
-{
-    for (int r = 1; r < 6; r++) {
-        word kr = (key << (4*r-4)) >> 16;
-        sub_keys.insert( sub_keys.end(), kr);
-    }
-}
-
-void sub_keys_inv(std::vector<word> & sub_keys, dword key)
-{
-    ::sub_keys(sub_keys,key);
-    sub_keys = std::vector<word>(sub_keys.rbegin(), sub_keys.rend());
-}
-
 word spn_cypher (word plain, dword key)
 {
     //creating sub keys

@@ -33,3 +33,12 @@ TEST_CASE( "SPN permutation", "[spn]" ) {
     CHECK( spn::P( 0b0011'1000'0010'0110 ) == 0b0100'0001'1011'1000 );
     CHECK( spn::P( 0b1001'1111'1011'0000 ) == 0b1110'0100'0110'1110 );
 }
+
+TEST_CASE( "SPN subkeys", "[spn]" ) {
+    auto subkeys = spn::subkeys( 0b0011'1010'1001'0100'1101'0110'0011'1111 );
+    CHECK( subkeys[0] == 0b0011'1010'1001'0100 );
+    CHECK( subkeys[1] == 0b1010'1001'0100'1101 );
+    CHECK( subkeys[2] == 0b1001'0100'1101'0110 );
+    CHECK( subkeys[3] == 0b0100'1101'0110'0011 );
+    CHECK( subkeys[4] == 0b1101'0110'0011'1111 );
+}

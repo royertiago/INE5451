@@ -42,4 +42,11 @@ namespace spn {
         return w.to_ulong();
     }
 
+    std::vector<key> subkeys( key k ) {
+        std::vector<key> subkeys;
+        for( int r = 4; r >= 0; r-- )
+            subkeys.push_back( (k >> 4*r) & 0xFFFF );
+        return subkeys;
+    }
+
 } // namespace spn

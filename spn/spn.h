@@ -1,6 +1,8 @@
 #ifndef SPN_H
 #define SPN_H
 
+#include <vector>
+
 namespace spn {
     typedef unsigned char index;
     typedef unsigned key;
@@ -25,6 +27,9 @@ namespace spn {
 
     // Applies the "inter-byte" permutation.
     data P( data );
+
+    // Computes the subkey vector.
+    std::vector<key> subkeys( key );
 }
 
 #endif // SPN_H
