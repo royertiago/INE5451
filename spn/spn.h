@@ -22,6 +22,9 @@ namespace spn {
         data S_inv( data ) const;
 
     };
+
+    // Applies the "inter-byte" permutation.
+    data P( data );
 }
 
 #endif // SPN_H

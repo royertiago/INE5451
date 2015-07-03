@@ -19,13 +19,6 @@ int permutation_s_inv[16] = {
 };
 #endif
 
-int permutation_p[16] = {
-    1, 5, 9, 13, 2, 6, 10, 14,
-    3, 7, 11, 15, 4, 8, 12, 16
-};
-
-int * permutation_p_inv = permutation_p;
-
 void sub_keys(std::vector<word> & sub_keys, dword key)
 {
     for (int r = 1; r < 6; r++) {
@@ -38,28 +31,6 @@ void sub_keys_inv(std::vector<word> & sub_keys, dword key)
 {
     ::sub_keys(sub_keys,key);
     sub_keys = std::vector<word>(sub_keys.rbegin(), sub_keys.rend());
-}
-
-word execute_permutation (word input)
-{
-    std::bitset<16> w;
-    std::bitset<16> v(input);
-
-    for (int i = 0; i < 16; i++)
-        w[16 - permutation_p[i]] = v[15 - i];
-
-    return w.to_ulong();
-}
-
-word execute_permutation_inv (word input)
-{
-    std::bitset<16> w;
-    std::bitset<16> v(input);
-
-    for (int i = 0; i < 16; i++)
-        w[16 - permutation_p_inv[i]] = v[15 - i];
-
-    return w.to_ulong();
 }
 
 word spn_cypher (word plain, dword key)
