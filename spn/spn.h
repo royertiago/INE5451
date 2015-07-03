@@ -17,6 +17,10 @@ namespace spn {
 
         // Applies the S-box of this SPN to each block of 4 bits of the given data.
         data S( data ) const;
+
+        // Applies the inverse of the permutation S.
+        data S_inv( data ) const;
+
     };
 }
 

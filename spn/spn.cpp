@@ -16,4 +16,11 @@ namespace spn {
         return r;
     }
 
+    data spn::S_inv( data d ) const {
+        data r(0);
+        for( int i = 0; i < 4; i++ )
+            r |= s_box_inv[(d >> 4*i) & 0b1111] << 4*i;
+        return r;
+    }
+
 } // namespace spn
