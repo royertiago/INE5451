@@ -10,7 +10,11 @@
 
 \usepackage{minted}
 \newminted{cpp}{gobble=4}
+
 \newcommand{\xor}{\oplus}
+\newcommand{\X}{\textbf{X}}
+\newcommand{\U}{\textbf{U}}
+\newcommand{\K}{\textbf{K}}
 
 \newcommand{\colvec}[1]{
     \tikz[baseline=-3pt]{
@@ -93,7 +97,62 @@ da caixa S analisada.
 15 & 8 &  8 &  8 &  8 &  8 &  8 & 12 & 12 & 10 &  6 & 10 &  6 & 10 &  6 &  6 & 10 \\
 \end{tabular}
 
+\subsection{b) Trilhas lineares}
 
+O objetivo é montar uma trilha linear usando três caixas-S ativas
+para a variável $\X_{16} \xor \U_1^4 \xor \U_9^4$.
+
+As duas informações dadas pelo problema
+--- a variável estudada e o número de caixas ativas ---
+reduz bastante o ``espaço de busca'' pela solução.
+
+Sabemos que a entrada $16$ deve estar ativa;
+passando pela chave $\K^1$ (e descendo no diagrama),
+chegamos à caixa $S_4^1$,
+com o último bit ativo.
+Portanto, o ``número da entrada'' de $S_4^1$ é $1$.
+
+Como as saídas $\U_9^4$ e $\U_1^4$ devem estar ativas,
+passando de volta pela chave $\K^4$ (subindo no diagrama),
+chegamos à caixa $S_1^3$, com ``número de saída'' $10$.
+
+Com isso, já temos duas caixas-S ativas,
+o que nos deixa espaço para ativar apenas mais uma,
+na segunda rodada.
+Observe que, independentemente de qual caixa-S escolhamos,
+só existirá um bit em que ela se ``comunica'' com $S_4^1$
+e um bit com $S_1^4$;
+pelo formato da permutação, esses bits são $1$ e $4$,
+respectivamente, independentemente de qual caixa-S ativemos.
+Assim, sabemos de antemão que $a = 1$ e $b = 8$,
+que tem tendência $1/4$.
+
+\begin{itemize}
+    \item Escolhendo ativar $S_1^2$,
+        somos obrigados a escolher a saída de $S_4^1$
+        e a entrada de $S_1^4$ ambas como $8$.
+        A tendência destas combinações é $1/4$ para ambas.
+
+    \item Escolhendo ativar $S_2^2$,
+        o número de saída de $S_4^1$
+        e o número de entrada de $S_1^4$ são ambos $4$.
+        A tendência destas combinações é $1/8$ para ambas.
+
+    \item Escolhendo ativar $S_3^2$,
+        os números são ambos $2$, com tendência $-1/8$ para ambas as caixas-S.
+
+    \item Escolhendo ativar $S_4^2$,
+        os números são ambos $1$, com tendência $1/8$.
+\end{itemize}
+
+Como possuem maior tendência,
+escolheremos perseguir a ativação da primeira caixa-S.
+O restante da análise é análogo ao visto em sala.
+Pelo lema do empilhamento de Matsui,
+a tendência desta variável é
+\begin{equation*}
+    2^2 * \frac 1 4 * \frac 1 4 * \frac 1 4 = \frac 1 {16}.
+\end{equation*}
 
 \section{Questão 2 --- Ataque quadrado ao AES}
 
