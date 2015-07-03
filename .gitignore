@@ -13,6 +13,7 @@ denigma
 des3
 freq
 generate_aes_integral
+generate_spn_outputs
 linear_radiography
 merge_freq
 micro_rsa
