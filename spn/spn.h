@@ -14,6 +14,9 @@ namespace spn {
          * The vector is assumed to have at least 16 positions.
          */
         spn( const int * );
+
+        // Applies the S-box of this SPN to each block of 4 bits of the given data.
+        data S( data ) const;
     };
 }
 

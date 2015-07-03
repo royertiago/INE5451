@@ -40,34 +40,6 @@ void sub_keys_inv(std::vector<word> & sub_keys, dword key)
     sub_keys = std::vector<word>(sub_keys.rbegin(), sub_keys.rend());
 }
 
-word execute_s_box (word u)
-{
-    word v = 0;
-
-    for (int i = 0; i < 4; i++)
-    {
-        word s_index = ((u << i*4) >> 12) & 0xF;
-        word nibble = permutation_s [s_index];
-        v = v | (nibble << (3-i)*4);
-    }
-
-    return v;
-}
-
-word execute_s_box_inv (word u)
-{
-    word v = 0;
-
-    for (int i = 0; i < 4; i++)
-    {
-        word s_index = ((u << i*4) >> 12) & 0xF;
-        word nibble = permutation_s_inv [s_index];
-        v = v | (nibble << (3-i)*4);
-    }
-
-    return v;
-}
-
 word execute_permutation (word input)
 {
     std::bitset<16> w;
