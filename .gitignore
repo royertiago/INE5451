@@ -21,5 +21,6 @@ pohlig_hellman
 shanks
 unaes4
 undes3
+unspn
 vigenere
 test/test
