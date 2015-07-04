@@ -175,6 +175,60 @@ contar quantas vezes a variável $\X_{16} \xor \U_1^4 \xor \U_9^4$ é $1$.
 Para a óctupla correspondente aos bits reais,
 este valor estará o mais longe possível da metade.
 
+\subsection{d) Implementação e teste}
+
+Implementamos a parafernália necessária para pôr a SPN para funcionar
+nos arquivos \verb"spn/spn.h" e \verb"spn/spn.cpp".
+
+O arquivo \verb"generate_spn_outputs.cpp" gera uma lista de pares aleatórios
+entrada-saída para uma mesma chave.
+Este programa possui, como um de seus parâmetros,
+a semente do gerador de números aleatórios utilizada,
+portanto nossos resultados são reprodutíveis.
+
+A implementação do ataque em si está no arquivo \verb"unspn.cpp";
+ele lê a saída do \verb"generate_spn_outputs",
+executa o ataque descrito na seção anterior,
+e imprime os bits cuja quantidade de votos
+(número de vezes em que a variável aleatória observada foi 1)
+esteja o mais longe possível do meio.
+
+A tabela \ref{linear} descreve alguns experimentos que fizemos.
+Para cada linha da tabela, rodamos o ataque mil vezes
+(uma vez com cada valor possível de semente para o RNG no intervalo $[1, 1000]$).
+A coluna ``textos'' diz quantos textos foram utilizados para aquelas rodadas,
+e a coluna ``acertos'' diz quantas vezes (dentre as mil)
+em que o algoritmo \verb"unspn" acertou os bits da subchave.
+
+\begin{table}
+    \center
+    \begin{tabular}{l r}
+        Textos & Acertos \\
+        500 & 267 \\
+        600 & 358 \\
+        700 & 406 \\
+        800 & 483 \\
+        900 & 549 \\
+        1000 & 613 \\
+        1200 & 712 \\
+        1500 & 810 \\
+        2000 & 916 \\
+        3000 & 981 \\
+        4500 & 999 \\
+        6000 & 1000
+    \end{tabular}
+    \caption{
+        Resultados do teste do ataque linear.
+    }
+    \label{linear}
+\end{table}
+
+A taxa de acertos cresce rapidamente no intervalo de $500$ a $1000$ textos,
+reduzindo entre $1000$ e $1500$ e praticamente estagnando após $3000$.
+Podemos ver que, com $1500$ textos, a probabilidade de acerto
+está na faixa de $80\%$, o que é um valor bom;
+entretanto, precisamos de $\approx 3000$ textos para garantir $98\%$ de acerto.
+
 \section{Questão 2 --- Ataque quadrado ao AES}
 
 Este problema pedia que implementássemos o ataque quadrado ao AES.
